@@ -63,7 +63,13 @@ function ProjectCard({ project }) {
           </Button>
         )}
         {demo && (
-          <Button href={demo} variant="ghost" className="project-card__btn">
+          <Button
+            href={demo}
+            variant="ghost"
+            className="project-card__btn"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <ExternalLink size={16} aria-hidden="true" /> Live Demo
           </Button>
         )}
