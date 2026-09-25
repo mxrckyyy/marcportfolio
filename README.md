@@ -4,7 +4,7 @@ A modern, responsive, job-focused web developer portfolio built with **React**, 
 
 ## 🚀 Live Demo
 
-- **Portfolio URL**: [Add your live Vercel URL here after deployment]
+- **Portfolio URL**: marcportfolio-seven.vercel.app
 - **GitHub Repository**: https://github.com/mxrckyyy/marcportfolio
 
 ## 🛠️ Tech Stack & Tools
@@ -21,26 +21,6 @@ A modern, responsive, job-focused web developer portfolio built with **React**, 
 - **Resume Access**: Instant preview and download support for `MarcResume.pdf`.
 - **Contact Integration**: Accessible contact cards and direct messaging form with auto-fallback handling.
 
-## 💻 Local Development Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/mxrckyyy/marcportfolio.git
-
-# Navigate to project directory
-cd marcportfolio
-
-# Install dependencies
-npm install
-
-# Run local development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview the production build locally
-npm run preview
 ```
 
 ## 📂 Project Structure
