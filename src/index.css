@@ -991,6 +991,23 @@ html {
   color: var(--accent);
 }
 
+.skills__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+}
+
+.skills__badges .skills__badge {
+  height: 32px;
+  max-width: 100%;
+  transition: transform var(--transition);
+}
+
+.skills__badges .skills__badge:hover {
+  transform: translateY(-2px);
+}
+
 .skills__note {
   display: flex;
   align-items: flex-start;
