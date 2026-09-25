@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import emailjs from '@emailjs/browser'
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Github, Send } from 'lucide-react'
 import SectionHeading from '../ui/SectionHeading'
@@ -38,25 +39,26 @@ const contactCards = [
   },
 ]
 
-const initialForm = { name: '', email: '', subject: '', message: '' }
+const initialFormData = { name: '', email: '', subject: '', message: '' }
 
 function Contact() {
-  const [form, setForm] = useState(initialForm)
+  const [formData, setFormData] = useState(initialFormData)
   const [status, setStatus] = useState(null)
+  const [isSending, setIsSending] = useState(false)
 
   const handleChange = (event) => {
     const { name, value } = event.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
     if (status) setStatus(null)
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
 
-    const name = form.name.trim()
-    const email = form.email.trim()
-    const subject = form.subject.trim() || 'Portfolio inquiry'
-    const message = form.message.trim()
+    const name = formData.name.trim()
+    const email = formData.email.trim()
+    const subject = formData.subject.trim() || 'Portfolio inquiry'
+    const message = formData.message.trim()
 
     if (!name || !email || !message) {
       setStatus({
@@ -74,17 +76,40 @@ function Contact() {
       return
     }
 
-    const body = `Name: ${name}\nEmail: ${email}\n\n${message}`
-    const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`
+    setIsSending(true)
+    setStatus(null)
 
-    window.location.href = mailto
-    setStatus({
-      type: 'success',
-      message: 'Opening your email app with your message. If it does not open, email me directly at johnmarccomeros16@gmail.com.',
-    })
-    setForm(initialForm)
+    const templateParams = {
+      name: formData.name,
+      email: formData.email,
+      title: formData.subject,
+      message: formData.message,
+    }
+
+    try {
+      await emailjs.send(
+        'service_2a39b0m',
+        'template_d8s622i',
+        templateParams,
+        'x3w2xijWKl8BvMqHt',
+      )
+
+      setFormData(initialFormData)
+      setStatus({
+        type: 'success',
+        message:
+          'Thank you! Your message has been sent successfully. I will get back to you soon.',
+      })
+    } catch (error) {
+      console.error('EmailJS send failed:', error)
+      setStatus({
+        type: 'error',
+        message:
+          'Failed to send message. Please email johnmarccomeros16@gmail.com directly.',
+      })
+    } finally {
+      setIsSending(false)
+    }
   }
 
   return (
@@ -163,7 +188,7 @@ function Contact() {
                   type="text"
                   autoComplete="name"
                   placeholder="Your name"
-                  value={form.name}
+                  value={formData.name}
                   onChange={handleChange}
                   required
                 />
@@ -183,7 +208,7 @@ function Contact() {
                   autoCorrect="off"
                   spellCheck="false"
                   placeholder="you@example.com"
-                  value={form.email}
+                  value={formData.email}
                   onChange={handleChange}
                   required
                 />
@@ -200,7 +225,7 @@ function Contact() {
                 name="subject"
                 type="text"
                 placeholder="What is this about?"
-                value={form.subject}
+                value={formData.subject}
                 onChange={handleChange}
               />
             </div>
@@ -215,7 +240,7 @@ function Contact() {
                 name="message"
                 rows="5"
                 placeholder="Tell me about the role, project, or idea..."
-                value={form.message}
+                value={formData.message}
                 onChange={handleChange}
                 required
               />
@@ -231,8 +256,19 @@ function Contact() {
               </p>
             )}
 
-            <Button type="submit" variant="primary" className="contact__submit">
-              <Send size={16} aria-hidden="true" /> Send Message
+            <Button
+              type="submit"
+              variant="primary"
+              className="contact__submit"
+              disabled={isSending}
+            >
+              {isSending ? (
+                'Sending...'
+              ) : (
+                <>
+                  <Send size={16} aria-hidden="true" /> Send Message
+                </>
+              )}
             </Button>
           </motion.form>
         </div>
