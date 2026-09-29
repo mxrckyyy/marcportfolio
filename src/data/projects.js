@@ -15,6 +15,7 @@ export const projects = [
       'Responsive, Modern User Interface',
     ],
     demo: 'https://gastobuster.vercel.app',
+    github: 'https://github.com/mxrckyyy/Gasto-Buster',
     featured: true,
   },
 ]
