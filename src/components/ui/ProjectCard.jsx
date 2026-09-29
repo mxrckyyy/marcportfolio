@@ -17,7 +17,7 @@ function ProjectCard({ project }) {
 
   return (
     <motion.article
-      className="project-card"
+      className={`project-card${featured ? ' project-card--featured' : ''}`}
       variants={staggerCard}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
