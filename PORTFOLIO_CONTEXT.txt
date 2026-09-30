@@ -82,3 +82,31 @@ MxrckyyyWebPortfolio/
 ├── package.json
 ├── vite.config.js
 └── README.md
+
+6. FEATURED PROJECTS (src/data/projects.js)
+--------------------------------------------------------------------
+Project entries are rendered dynamically by src/components/sections/Projects.jsx
+into a responsive grid (1 column below 768px, 2 equal columns above) using
+src/components/ui/ProjectCard.jsx. All cards share identical dimensions,
+hover effects (border accent + lift), tech badges, and action buttons
+("Live Demo" / "View Code"). Both entries below are flagged featured: true.
+
+- Gasto Buster (id: gasto-buster) - Full-Stack Financial & Budget Tracker
+  Demo: https://gastobuster.vercel.app
+  GitHub: https://github.com/mxrckyyy/Gasto-Buster
+  Stack: React, JavaScript, Tailwind CSS, Vercel
+
+- Inventory Management System (id: inventory-system) - Full-Stack Web App
+  Demo: https://inventory-system-pi-self.vercel.app
+  GitHub: https://github.com/mxrckyyy/InventorySystem
+  Stack: React, Vite, Supabase, Tailwind CSS, SheetJS, Vercel
+  Highlights: RBAC (Admin/Viewer) via Supabase Auth, automated SKU
+  generation, responsive drawer menu + full-width adaptive data tables,
+  Philippine Peso (₱) stock valuation & low-stock alerts, client-side
+  Excel (.xlsx) report export
+
+PROJECT ENTRY SCHEMA (required keys for ProjectCard):
+  id, title, category, type, description, technologies[], features[],
+  demo, github, featured
+====================================================================
+
