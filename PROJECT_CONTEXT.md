@@ -150,12 +150,13 @@ The portfolio should communicate:
 - Curiosity
 - Continuous improvement
 
-**Branding consistency:** the Home hero subtitle is
-"BSIT Student · Aspiring Web Developer" (`src/pages/Home.jsx`), matching
-`index.html` metadata, About, and Resume. The pre-Phase-2 inconsistency
-("Frontend Developer" in the old Hero) is resolved — keep all future copy on
-the truthful student positioning (decide with the owner before ever changing
-the title).
+**Branding consistency:** the Home hero shows
+**"2nd-Year BSIT Student · Aspiring Web Developer"**
+(`src/components/home/Hero.jsx`), which contains the exact positioning string;
+`index.html` metadata, About, and Resume use "BSIT Student · Aspiring Web
+Developer". The pre-Phase-2 inconsistency ("Frontend Developer" in the old
+Hero) is resolved — keep all future copy on the truthful student positioning
+(decide with the owner before ever changing the title).
 
 ---
 
@@ -184,7 +185,9 @@ the title).
   git history (commit `f45d3eb`).
 - **Phase 2 (multi-page routing + Tailwind CSS v4 + design system): COMPLETE**
   (commit `7d65cb9`).
-- **Not started** (later phases): page redesigns (Hero/About/Skills/Projects/
+- **Phase 3 (Home page, Hero & personal branding): COMPLETE** — Hero +
+  Selected Work in `src/components/home/` (see §7).
+- **Not started** (later phases): page redesigns (About/Skills/Projects/
   Resume/Contact/Footer polish), new portfolio sections, per-route SEO titles/
   meta, security audit, performance optimization, final QA.
 
@@ -197,7 +200,7 @@ via a layout route with `<Outlet />`.
 
 | Route | Page | Content |
 | --- | --- | --- |
-| `/` | `Home` | Hero (name, positioning, tags, CTAs) |
+| `/` | `Home` | Hero (identity, positioning, value prop, CTAs) + Selected Work teaser |
 | `/about` | `About` | Bio + highlight cards |
 | `/skills` | `Skills` | Badge groups + note |
 | `/projects` | `Projects` | Project cards + GitHub banner |
@@ -225,6 +228,7 @@ App (MotionConfig reducedMotion="user")
 src/
 ├── components/
 │   ├── layout/   Layout.jsx, Navbar.jsx, Footer.jsx, Page.jsx
+│   ├── home/     Hero.jsx, SelectedWork.jsx   (Home page sections, Phase 3)
 │   └── ui/       Button.jsx, Card.jsx, Chip.jsx, PageHeader.jsx,
 │                 ProjectCard.jsx, SocialLinks.jsx, BackToTop.jsx
 ├── pages/        Home, About, Skills, Projects, Resume, Contact, NotFound (.jsx)
@@ -252,6 +256,65 @@ stylesheet, `Linkedin`/`Facebook` icon-map entries (confirmed unused).
 - Scroll-spy/IntersectionObserver removed (routing owns active state).
 - Route changes: instant scroll to top + subtle main fade (Framer Motion),
   both respecting `prefers-reduced-motion`.
+
+### Home Page & Hero (post-Phase 3)
+
+`pages/Home.jsx` is a composition only:
+
+```text
+<>
+├── Hero         (components/home/Hero.jsx)
+└── SelectedWork (components/home/SelectedWork.jsx)
+```
+
+**Hero hierarchy (strict, top → bottom):**
+
+1. Eyebrow: `// Hi, I'm Marc.` (mono, primary, PageHeader-style `//` prefix)
+2. `h1` **John Marc Comeros** — `clamp(1.75rem,5vw,3rem)` display recipe; the
+   page's only h1 and the single dominant element (`text-balance`)
+3. Positioning: `2nd-Year BSIT Student · Aspiring Web Developer` (mono,
+   primary)
+4. Value proposition: practical/responsive/interactive experiences + growing
+   skills (body-large, muted, `max-w-[560px]`)
+5. CTAs: **View My Projects** (primary, `lg`, router Link → `/projects`) /
+   **View Resume** (secondary, `lg` → `/resume` — the Resume page owns the
+   PDF; no download logic in the Hero)
+6. `<SocialLinks />` (Email + GitHub from `data/socialLinks.js` — no invented
+   accounts)
+
+**Visual strategy:** the real photo (`public/images/profile.jpg`) inside a
+framed `<figure>` card (border, `bg-surface`, subtle accent ring) with a
+`figcaption` availability bar: green dot (`aria-hidden`) + "Available for
+internships & junior roles". No invented screenshots/stats/logos; typographic
+hierarchy does the heavy lifting.
+
+**Responsive/mobile priority:** content-first DOM order — text + CTAs render
+before the photo on small screens, so identity, positioning, description, and
+the primary CTA are all visible in the first viewport at 320–430px (fixes the
+old avatar-first fold problem). CTAs stack full-width below 430px
+(`min-[430px]:flex-row`), row + wrap at ≥430px. `md:` two-column grid with
+natural DOM order (content left `1.15fr`, photo right `0.85fr` — no col-start
+hacks); photo centered on mobile, flush right on `md+`. All sizing via
+clamp/min/max + `min-w-0` — no fixed widths.
+
+**Animation (entrance only, no loops):** content stack uses
+`staggerContainer`/`staggerItem` (0.08s stagger, readable <0.5s); photo card
+fades/slides once (0.6s, 0.15s delay). The old infinite photo float, pill dot
+pulse, and bounce arrow were removed. Selected Work uses
+`whileInView` + `viewportOnce`. Reduced motion: `MotionConfig
+reducedMotion="user"` + global CSS.
+
+**Selected Work:** header (eyebrow + `h2` "Things I've built" + secondary
+Button → `/projects`) and 2 cards from `data/projects.js` — the whole card is
+a single router `Link` to `/projects` (category, `h3` title, full description,
+tech chips, "View project →" hint). Deliberately no demo/GitHub buttons or
+feature checklists — those live on `/projects` (no duplication).
+
+**Accessibility:** heading order h1 (Hero) → h2 (Selected Work) → h3 (project
+titles); no `role="status"` anywhere on Home; availability caption is real
+text; decorative dot `aria-hidden`; global focus-visible; 44px targets via
+Button/SocialLinks; token contrast unchanged. Navbar untouched — Home
+`NavLink` `end` still marks `aria-current="page"` correctly.
 
 ---
 
@@ -450,9 +513,9 @@ it into this file; it describes files that no longer exist.
 
 ### Visual / UI-UX
 
-1. **Weak visual hierarchy in Hero** `[OPEN]` — status pill, H1, subtitle,
-   description, tags, buttons, and socials are stacked with similar visual
-   weight; nothing dominates the fold. Page redesign pending.
+1. **Weak visual hierarchy in Hero** `[RESOLVED — Phase 3]` — Hero redesigned:
+   one dominant `h1` with strict eyebrow → name → positioning → value prop →
+   CTA hierarchy; glow pill, tech-tag chips, and equal-weight CTAs removed.
 2. **Weak project presentation** `[OPEN]` — no screenshots, no visual
    differentiation between the two cards; the strongest content of the site is
    the least visual.
@@ -463,8 +526,8 @@ it into this file; it describes files that no longer exist.
    says "BSIT Student · Aspiring Web Developer" (was "Frontend Developer").
 5. **Inconsistent components** `[OPEN]` — two back-to-top controls (Footer
    button + floating `BackToTop`); hardcoded skill-like lists remain in
-   `pages/Home.jsx` (`techTags`), `pages/Resume.jsx`
-   (`technicalHighlights`, `focusAreas`) — drift risk vs `data/skills.js`.
+   `pages/Resume.jsx` (`technicalHighlights`, `focusAreas`) — drift risk vs
+   `data/skills.js`. (Home's hardcoded `techTags` was removed in Phase 3.)
 6. **Dead UI data — SocialLinks iconMap** `[RESOLVED — Phase 2]` —
    Linkedin/Facebook/Globe entries removed (they were unused). Note:
    `data/socialLinks.js` still only has Email + GitHub — no LinkedIn link at
@@ -490,8 +553,10 @@ it into this file; it describes files that no longer exist.
 11. **Inconsistent breakpoints** `[RESOLVED — Phase 2]` — legacy 480/560/768/
     900/1024px one-off breakpoints standardized to Tailwind defaults
     (sm 640 / md 768 / lg 1024 / xl 1280 / 2xl 1536).
-12. **Hero on mobile** `[OPEN]` — avatar renders first on small screens
-    (grid DOM order in `pages/Home.jsx`), pushing the CTAs below the fold.
+12. **Hero on mobile** `[RESOLVED — Phase 3]` — content-first DOM order: text
+    and CTAs render before the photo on small screens; identity, positioning,
+    description, and the primary CTA are visible in the first viewport at
+    320–430px.
 13. **Full-width buttons under 480px** `[RESOLVED — Phase 2]` — legacy
     `.btn { width: 100% }` rule deleted with the old stylesheet.
 
@@ -507,8 +572,9 @@ it into this file; it describes files that no longer exist.
 16. **Skill badges are image-only content** `[OPEN]` — no text fallback if
     images fail.
 17. **`role="status"` on the static Hero availability pill**
-    `[OPEN]` — `pages/Home.jsx:52` announces a continuously-updating region
-    for a static string.
+    `[RESOLVED — Phase 3]` — pill removed; availability is now plain
+    `figcaption` text in the Hero visual card (no live region anywhere on
+    Home).
 
 ### Performance
 
@@ -588,7 +654,9 @@ it into this file; it describes files that no longer exist.
 
 ---
 
-## 16. Validation Status (end of Phase 2)
+## 16. Validation Status
+
+### End of Phase 2
 
 - `npm run build` ✓ (Vite 7 + Tailwind v4 plugin; CSS ~31KB gzip 6.6KB).
 - SSR smoke render of all 7 routes ✓ (main/nav/footer/h1 present, no `undefined`
@@ -600,3 +668,19 @@ it into this file; it describes files that no longer exist.
 - No linter/tests exist in the repo (nothing to run).
 - Not yet machine-verified: visual rendering in a real browser (console,
   pixel-level overflow) — do in QA phase.
+
+### End of Phase 3 (Home / Hero)
+
+- `npm run build` ✓ (2130 modules; CSS 30.4 kB / gzip 6.6 kB; no warnings).
+- SSR smoke render of `/` (full App): **20/20 checks ✓** — single `h1` =
+  "John Marc Comeros"; positioning + eyebrow present; `href="/projects"` and
+  `href="/resume"` CTAs; zero hash anchors; no `role="status"` on Home;
+  availability caption; h1 → h2 → h3 hierarchy; social links (GitHub +
+  mailto); `aria-current="page"` on Home nav; skip link + footer present; no
+  `undefined` output.
+- `vite preview`: `/`, `/about`, `/skills` → 200 + SPA shell ✓.
+- Dev server: `/` → 200; `Home.jsx` / `Hero.jsx` / `SelectedWork.jsx`
+  transforms → 200 ✓; no errors in dev/preview logs ✓.
+- Structural responsive review (320–1440): clamp/min-w-0/flex-wrap only, CTA
+  stack below 430px — pixel-level + real-console checks deferred to QA phase
+  (no browser automation in this environment).

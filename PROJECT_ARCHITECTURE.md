@@ -83,6 +83,9 @@ marcportfolio/
 │   │   │   ├── Navbar.jsx     # NavLink desktop list + mobile drawer
 │   │   │   ├── Footer.jsx     # Social links + copyright + back-to-top button
 │   │   │   └── Page.jsx       # Page shell: vertical padding + container
+│   │   ├── home/
+│   │   │   ├── Hero.jsx       # Home hero: content stack + photo figure + CTAs (Phase 3)
+│   │   │   └── SelectedWork.jsx # 2 project teasers → /projects (Phase 3)
 │   │   └── ui/
 │   │       ├── Button.jsx     # Polymorphic Link/anchor/button
 │   │       ├── Card.jsx       # Motion-forwarding surface card
@@ -172,7 +175,9 @@ App (MotionConfig)
 └── BrowserRouter → Routes → Layout
     ├── Navbar        → Button, react-router NavLink, lucide Menu/X
     ├── <Outlet/> → matched page:
-    │   ├── Home      → Button, SocialLinks, Link, animations, container
+    │   ├── Home      → components/home/Hero + SelectedWork
+    │   │               Hero → Button, SocialLinks, animations, container
+    │   │               SelectedWork → Button, Link, data/projects, animations
     │   ├── About     → Page, PageHeader, local highlights + lucide icons
     │   ├── Skills    → Page, PageHeader, Card, data/skills, animations
     │   ├── Projects  → Page, PageHeader, ProjectCard, Button, data/projects
@@ -196,6 +201,46 @@ App (MotionConfig)
 | `SocialLinks({ variant='default' \| 'compact' })` | Maps `data/socialLinks.js` (Email, GitHub). |
 | `Page({ children, className })` | Page shell: `py-12 sm:py-14 md:py-20` + container. |
 | `BackToTop()` | Floating button, visible after `scrollY > 0.8 × innerHeight`. |
+
+**Home page structure (Phase 3)**
+
+```text
+pages/Home.jsx            (composition only — no markup of its own)
+├── components/home/Hero.jsx
+│   ├── content stack (motion, staggerContainer/staggerItem):
+│   │   eyebrow "// Hi, I'm Marc."
+│   │   → h1 "John Marc Comeros"        (page's only h1)
+│   │   → positioning (2nd-Year BSIT Student · Aspiring Web Developer)
+│   │   → value proposition
+│   │   → CTAs: Button to="/projects" (primary lg)
+│   │           Button to="/resume"   (secondary lg)
+│   │   → <SocialLinks />               (data/socialLinks.js: Email, GitHub)
+│   └── visual (motion entrance, no loop):
+│       <figure> → img /images/profile.jpg + figcaption availability bar
+└── components/home/SelectedWork.jsx
+    ├── header: eyebrow + h2 "Things I've built" + Button to="/projects"
+    └── ul → 2 × Link to="/projects" cards built from data/projects.js
+        (category, h3 title, description, tech chips, "View project →")
+```
+
+- **Reusable components used by Hero:** `Button`, `SocialLinks`,
+  `staggerContainer`/`staggerItem` (`utils/animations.js`),
+  `containerClasses` (`utils/container.js`). Selected Work additionally uses
+  `viewportOnce` and raw `Link`. No new primitives, no data duplication.
+- **Routing destinations:** `/projects` (Hero CTA, teaser cards, header
+  button) and `/resume` (Hero secondary CTA) — all React Router `Link`s via
+  `Button to`; hash anchors intentionally absent.
+- **Animation implementation:** Hero = mount-time stagger only (content
+  readable <0.5s) + one photo entrance (0.6s / 0.15s delay); Selected Work =
+  `whileInView` + `viewportOnce` per block. No infinite loops anywhere on
+  Home (photo float, pill pulse, bounce arrow removed). Reduced motion via
+  `MotionConfig reducedMotion="user"` + global CSS.
+- **Responsive strategy:** content-first DOM order (mobile shows text + CTAs
+  before the photo — first-viewport CTA visibility at 320–430px); `md:` grid
+  `[minmax(0,1.15fr)_minmax(0,0.85fr)]` with natural DOM order (content left,
+  photo right); CTA row stacks below 430px (`min-[430px]:flex-row`); photo
+  `w-[min(100%,clamp(220px,60vw,300px))]` mobile → `clamp(240px,24vw,340px)`
+  `md+`; clamp/min-w-0/wrap everywhere, no fixed widths.
 
 ---
 
@@ -481,3 +526,21 @@ change complete:
 - Added `vercel.json` SPA rewrites so deep links work on refresh.
 - Validated: `npm run build` ✓, SSR smoke render of all 7 routes ✓,
   `vite preview` + dev-server direct-route loads ✓.
+
+### Phase 3 (Home page, Hero & personal branding)
+
+- Added `src/components/home/`: `Hero.jsx` (identity, positioning, value
+  prop, router CTAs, photo `<figure>` + availability caption) and
+  `SelectedWork.jsx` (2 data-driven project teasers → `/projects`);
+  `pages/Home.jsx` is now a two-line composition of both.
+- Hero redesign: single dominant `h1`, strict content hierarchy, content-first
+  DOM order (mobile CTA fold fixed), secondary CTA switched from "Contact
+  Me" → **View Resume** (`/resume`), visual kept to the real `profile.jpg`
+  with a caption bar.
+- Removed from Home: `role="status"` availability pill, hardcoded `techTags`
+  row, hash-style bounce arrow, and all infinite animations (photo float, dot
+  pulse, bounce).
+- Untouched: routing architecture, Navbar, Footer, Button, SocialLinks, data
+  files, `index.css`, all other pages.
+- Validated: build ✓, SSR 20/20 checks ✓, preview + dev route/transform
+  checks ✓ (details in `PROJECT_CONTEXT.md` §16).
