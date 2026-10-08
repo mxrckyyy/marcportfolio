@@ -1,44 +1,43 @@
 import { useEffect, useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import Button from '../ui/Button'
+import { containerClasses } from '../../utils/container'
 
 const navLinks = [
-  { id: 'about', label: 'About' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'resume', label: 'Resume' },
-  { id: 'contact', label: 'Contact' },
+  { to: '/', label: 'Home', end: true },
+  { to: '/about', label: 'About' },
+  { to: '/skills', label: 'Skills' },
+  { to: '/projects', label: 'Projects' },
+  { to: '/resume', label: 'Resume' },
+  { to: '/contact', label: 'Contact' },
 ]
+
+const desktopLinkClasses = ({ isActive }) =>
+  [
+    'relative inline-flex min-h-11 items-center rounded-sm px-3 text-sm transition-colors duration-200 after:absolute after:inset-x-3 after:bottom-1 after:h-0.5 after:origin-center after:scale-x-0 after:bg-primary after:transition-transform after:duration-200 hover:after:scale-x-100',
+    isActive
+      ? 'font-semibold text-primary after:scale-x-100'
+      : 'font-medium text-muted hover:bg-border-subtle hover:text-foreground',
+  ].join(' ')
+
+const drawerLinkClasses = ({ isActive }) =>
+  [
+    'block rounded-sm px-3 py-2.5 text-base transition-colors duration-200',
+    isActive
+      ? 'bg-primary-soft font-semibold text-primary'
+      : 'font-medium text-muted hover:bg-border-subtle hover:text-foreground',
+  ].join(' ')
 
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [activeId, setActiveId] = useState('top')
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 8)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveId(entry.target.id)
-        })
-      },
-      { rootMargin: '-40% 0px -55% 0px', threshold: 0 },
-    )
-
-    const ids = ['top', ...navLinks.map((link) => link.id)]
-    ids.forEach((id) => {
-      const el = document.getElementById(id)
-      if (el) observer.observe(el)
-    })
-
-    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -63,87 +62,89 @@ function Navbar() {
 
   const closeMenu = () => setIsOpen(false)
 
+  const headerClasses = [
+    'sticky top-0 z-[1000] w-full border-b border-transparent bg-background/55 transition-colors duration-200',
+    isScrolled || isOpen ? 'border-border-subtle bg-background/75 backdrop-blur-md' : '',
+  ].join(' ')
+
+  const drawerClasses = [
+    'fixed inset-x-0 top-16 z-[999] border-b border-border bg-background/95 px-4 pt-4 pb-6 shadow-lg backdrop-blur-md transition-[opacity,transform,visibility] duration-200 md:hidden sm:px-6',
+    isOpen
+      ? 'visible translate-y-0 opacity-100'
+      : 'invisible -translate-y-2 opacity-0',
+  ].join(' ')
+
+  const overlayClasses = [
+    'fixed inset-x-0 bottom-0 top-16 z-[998] bg-black/55 transition-opacity duration-200 md:hidden',
+    isOpen ? 'opacity-100' : 'invisible opacity-0',
+  ].join(' ')
+
   return (
-    <header
-      className={`navbar ${isScrolled ? 'navbar--scrolled' : ''} ${
-        isOpen ? 'navbar--menu-open' : ''
-      }`}
-    >
-      <div className="container navbar__inner">
-        <a
-          href="#top"
-          className="navbar__brand"
-          aria-label="John Marc Comeros — back to top"
+    <header className={headerClasses}>
+      <div className={`${containerClasses} flex h-16 items-center justify-between gap-4`}>
+        <Link
+          to="/"
+          className="inline-flex min-h-11 items-center gap-px font-mono text-[1.05rem] font-bold tracking-wide"
+          aria-label="John Marc Comeros — home"
           onClick={closeMenu}
         >
-          <span className="navbar__brand-bracket" aria-hidden="true">
+          <span className="text-muted" aria-hidden="true">
             &lt;
           </span>
-          <span className="navbar__brand-name">JMC</span>
-          <span className="navbar__brand-bracket" aria-hidden="true">
+          <span className="text-primary">JMC</span>
+          <span className="text-muted" aria-hidden="true">
             /&gt;
           </span>
-        </a>
+        </Link>
 
-        <nav className="navbar__nav" aria-label="Main navigation">
-          <ul className="navbar__list">
+        <nav className="hidden items-center gap-3 md:flex" aria-label="Main navigation">
+          <ul className="flex items-center gap-1">
             {navLinks.map((link) => (
-              <li key={link.id}>
-                <a
-                  href={`#${link.id}`}
-                  className={`navbar__link ${
-                    activeId === link.id ? 'is-active' : ''
-                  }`}
-                  aria-current={activeId === link.id ? 'true' : undefined}
-                >
+              <li key={link.to}>
+                <NavLink to={link.to} end={link.end} className={desktopLinkClasses}>
                   {link.label}
-                </a>
+                </NavLink>
               </li>
             ))}
           </ul>
-          <Button href="#contact" variant="primary" className="navbar__cta">
+          <Button to="/contact" variant="primary" size="sm">
             Get in Touch
           </Button>
         </nav>
 
-        <button
-          type="button"
-          className="navbar__toggle"
-          aria-label="Toggle navigation menu"
+        <Button
+          variant="icon"
+          className="md:hidden"
+          aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={isOpen}
           aria-controls="mobile-menu"
           onClick={() => setIsOpen((prev) => !prev)}
         >
-          {isOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+          {isOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+        </Button>
       </div>
 
-      <div
-        id="mobile-menu"
-        className={`navbar__drawer ${isOpen ? 'is-open' : ''}`}
-        aria-hidden={!isOpen}
-      >
+      <div id="mobile-menu" className={drawerClasses} aria-hidden={!isOpen}>
         <nav aria-label="Mobile navigation">
-          <ul className="navbar__drawer-list">
+          <ul className="flex flex-col gap-1">
             {navLinks.map((link) => (
-              <li key={link.id}>
-                <a
-                  href={`#${link.id}`}
-                  className={`navbar__drawer-link ${
-                    activeId === link.id ? 'is-active' : ''
-                  }`}
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
+                  end={link.end}
+                  className={drawerLinkClasses}
                   onClick={closeMenu}
                   tabIndex={isOpen ? 0 : -1}
                 >
                   {link.label}
-                </a>
+                </NavLink>
               </li>
             ))}
           </ul>
           <Button
-            href="#contact"
+            to="/contact"
             variant="primary"
-            className="navbar__drawer-cta"
+            className="mt-4 w-full"
             onClick={closeMenu}
             tabIndex={isOpen ? 0 : -1}
           >
@@ -152,11 +153,7 @@ function Navbar() {
         </nav>
       </div>
 
-      <div
-        className={`navbar__overlay ${isOpen ? 'is-open' : ''}`}
-        onClick={closeMenu}
-        aria-hidden="true"
-      />
+      <div className={overlayClasses} onClick={closeMenu} aria-hidden="true" />
     </header>
   )
 }

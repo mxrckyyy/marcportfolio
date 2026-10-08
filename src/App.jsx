@@ -1,31 +1,30 @@
 import { MotionConfig } from 'framer-motion'
-import Navbar from './components/layout/Navbar'
-import Footer from './components/layout/Footer'
-import BackToTop from './components/ui/BackToTop'
-import Hero from './components/sections/Hero'
-import About from './components/sections/About'
-import Skills from './components/sections/Skills'
-import Projects from './components/sections/Projects'
-import Resume from './components/sections/Resume'
-import Contact from './components/sections/Contact'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Layout from './components/layout/Layout'
+import Home from './pages/Home'
+import About from './pages/About'
+import Skills from './pages/Skills'
+import Projects from './pages/Projects'
+import Resume from './pages/Resume'
+import Contact from './pages/Contact'
+import NotFound from './pages/NotFound'
 
 function App() {
   return (
     <MotionConfig reducedMotion="user">
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
-      <Navbar />
-      <main id="main-content" tabIndex={-1}>
-        <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <Resume />
-        <Contact />
-      </main>
-      <Footer />
-      <BackToTop />
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="about" element={<About />} />
+            <Route path="skills" element={<Skills />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="resume" element={<Resume />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </MotionConfig>
   )
 }

@@ -29,7 +29,7 @@ function BackToTop() {
       {visible && (
         <motion.button
           type="button"
-          className="back-to-top"
+          className="fixed bottom-4 right-4 z-[900] inline-flex size-11 items-center justify-center rounded-full border border-border bg-surface text-muted shadow-lg transition-colors duration-200 hover:border-primary hover:bg-primary-soft hover:text-primary sm:bottom-6 sm:right-6"
           onClick={scrollToTop}
           aria-label="Back to top"
           title="Back to top"
