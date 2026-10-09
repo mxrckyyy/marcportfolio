@@ -110,20 +110,30 @@ documented here.
 - Figma
 - Canva
 - Inkscape
+- Adobe Photoshop (part of the owner's "Adobe tools", verified in the
+  Phase 5 profile)
 
-### Needs verification (shown in `src/data/skills.js` but not confirmed by the project blueprint)
+### What the Skills page presents (Phase 5)
 
-The Skills page also displays these badges. They are **not** confirmed in
-`PORTFOLIO_CONTEXT.txt` and must be verified with the owner before being
-presented as known skills:
+The Skills page shows only the owner's verified list, organized into six
+groups in `src/data/skills.js`: HTML, CSS, JavaScript · React · C# ·
+MySQL, Supabase · Git, GitHub · Figma, Inkscape, Canva, Adobe Photoshop.
+JavaScript carries an explicit "basic knowledge, still learning" note.
+Tailwind CSS and Vite are used by the portfolio itself (see Frontend above)
+but are **not** presented as personal skills.
+
+### Needs verification (not displayed on the site)
+
+These were previously shown as Skills-page badges and are **not** confirmed
+in `PORTFOLIO_CONTEXT.txt`. Do not add them to the site without verifying
+with the owner first:
 
 - Next.js — Needs verification
-- Tailwind CSS — used by the portfolio projects (Gasto Buster, Inventory System, this portfolio), so it is project-level evidence, but must be confirmed as a personal skill.
+- Tailwind CSS — as a personal skill (project-level evidence only)
 - .NET — Needs verification
 - Blazor — Needs verification
 - Netlify — Needs verification
 - Render — Needs verification
-- Adobe Photoshop — Needs verification
 
 Do not add new technologies simply because they are popular.
 
@@ -150,13 +160,16 @@ The portfolio should communicate:
 - Curiosity
 - Continuous improvement
 
-**Branding consistency:** the Home hero shows
+**Branding consistency:** the Home hero shows the exact string
 **"2nd-Year BSIT Student · Aspiring Web Developer"**
-(`src/components/home/Hero.jsx`), which contains the exact positioning string;
-`index.html` metadata, About, and Resume use "BSIT Student · Aspiring Web
-Developer". The pre-Phase-2 inconsistency ("Frontend Developer" in the old
-Hero) is resolved — keep all future copy on the truthful student positioning
-(decide with the owner before ever changing the title).
+(`src/components/home/Hero.jsx`); `index.html` metadata uses the equivalent
+"BSIT student and aspiring web developer"; the About page (post-Phase 4)
+introduces Marc in first person as "a second-year BSIT student" and
+"BSIT student exploring web development"; the Resume page states "BS in
+Information Technology (2nd Year)". The pre-Phase-2 inconsistency
+("Frontend Developer" in the old Hero) is resolved — keep all future copy on
+the truthful student positioning (decide with the owner before ever changing
+the title).
 
 ---
 
@@ -187,13 +200,17 @@ Hero) is resolved — keep all future copy on the truthful student positioning
   (commit `7d65cb9`).
 - **Phase 3 (Home page, Hero & personal branding): COMPLETE** — Hero +
   Selected Work in `src/components/home/` (see §7).
-- **Not started** (later phases): page redesigns (About/Skills/Projects/
-  Resume/Contact/Footer polish), new portfolio sections, per-route SEO titles/
+- **Phase 4 (About page UI/UX redesign): COMPLETE** — new section components
+  in `src/components/about/` (see §7).
+- **Phase 5 (Skills page UI/UX redesign): COMPLETE** — categorized text-chip
+  skill groups in `data/skills.js` + redesigned `pages/Skills.jsx` (see §7).
+- **Not started** (later phases): page redesigns (Projects/Resume/Contact/
+  Footer polish), new portfolio sections, per-route SEO titles/
   meta, security audit, performance optimization, final QA.
 
 ---
 
-## 7. Current Architecture (post-Phase 2)
+## 7. Current Architecture (post-Phase 4)
 
 Multi-page SPA. Seven real routes served by React Router; shared Navbar/Footer
 via a layout route with `<Outlet />`.
@@ -201,8 +218,8 @@ via a layout route with `<Outlet />`.
 | Route | Page | Content |
 | --- | --- | --- |
 | `/` | `Home` | Hero (identity, positioning, value prop, CTAs) + Selected Work teaser |
-| `/about` | `About` | Bio + highlight cards |
-| `/skills` | `Skills` | Badge groups + note |
+| `/about` | `About` | Intro + portrait + facts, learning journey, what I enjoy building, approach, closing CTA |
+| `/skills` | `Skills` | Intro, 6 categorized skill groups (text chips), learning focus, projects CTA |
 | `/projects` | `Projects` | Project cards + GitHub banner |
 | `/resume` | `Resume` | Resume actions + education/tech/focus |
 | `/contact` | `Contact` | Contact cards + EmailJS form |
@@ -222,17 +239,19 @@ App (MotionConfig reducedMotion="user")
             └── BackToTop
 ```
 
-### File map (post-Phase 2)
+### File map (post-Phase 5)
 
 ```text
 src/
 ├── components/
 │   ├── layout/   Layout.jsx, Navbar.jsx, Footer.jsx, Page.jsx
 │   ├── home/     Hero.jsx, SelectedWork.jsx   (Home page sections, Phase 3)
+│   ├── about/    Intro.jsx, LearningJourney.jsx, BuildingInterests.jsx,
+│   │             Approach.jsx   (About page sections, Phase 4)
 │   └── ui/       Button.jsx, Card.jsx, Chip.jsx, PageHeader.jsx,
 │                 ProjectCard.jsx, SocialLinks.jsx, BackToTop.jsx
 ├── pages/        Home, About, Skills, Projects, Resume, Contact, NotFound (.jsx)
-├── data/         projects.js, skills.js, socialLinks.js   (unchanged)
+├── data/         projects.js, skills.js, socialLinks.js
 ├── utils/        animations.js, container.js, formStyles.js
 ├── App.jsx       (router config)
 ├── main.jsx      (unchanged)
@@ -316,6 +335,99 @@ text; decorative dot `aria-hidden`; global focus-visible; 44px targets via
 Button/SocialLinks; token contrast unchanged. Navbar untouched — Home
 `NavLink` `end` still marks `aria-current="page"` correctly.
 
+### About Page (post-Phase 4)
+
+`pages/About.jsx` composes `PageHeader` + four section components + a closing
+CTA section:
+
+```text
+Page (vertical padding + container)
+├── PageHeader        (eyebrow "// About", h1 "A little about me", lead description)
+├── Intro             (components/about/Intro.jsx)
+│   ├── two columns: first-person intro (3 paragraphs) | compact portrait figure
+│   │   (/images/profile.jpg — lazy, width/height declared, centered on mobile,
+│   │    right-aligned md+)
+│   └── <dl> fact strip: Education / Based in / Focus (border-t cells, 1→3 cols)
+├── LearningJourney   (components/about/LearningJourney.jsx)
+│   └── h2 + lead + 6 theme items (lucide icon, h3, one line) — grid 1→2→3 cols
+├── BuildingInterests (components/about/BuildingInterests.jsx)
+│   ├── h2 + 2 prose paragraphs (what I like to build)
+│   └── "Projects so far" list built from data/projects.js — each row is a
+│       router Link to /projects (title + technology line)
+├── Approach          (components/about/Approach.jsx)
+│   └── h2 + lead + 4 principle items (mono number, h3, one line) — 2-col list
+└── closing section (in About.jsx): h2 "What I'm working toward" + statement
+    + CTAs: Button to="/projects" (primary) / Button to="/skills" (secondary)
+```
+
+**Content rules:** first-person and conversational; facts limited to verified
+profile data (2nd-year BSIT, Asian College of Technology, Cebu City, UI/UX
+focus); the six journey themes map 1:1 to documented skills; the only project
+references come from `data/projects.js`; no dates, milestones, certifications,
+statistics, or experience claims — principles are framed as goals, not
+achievements.
+
+**Heading hierarchy:** h1 (PageHeader) → h2 per section → h3 for journey and
+principle items. Journey icons and principle numbers are decorative
+(`aria-hidden`). Portrait `alt` is descriptive; fact strip uses `<dl>/<dt>/<dd>`.
+
+**Responsive:** content-first DOM order (intro text renders before the
+portrait on mobile); grids collapse `lg:3 → sm:2 → 1` (journey) and
+`sm:2 → 1` (approach/intro facts); portrait `w-[min(100%,clamp(200px,55vw,240px))]`
+mobile → `clamp(200px,20vw,250px)` `md+`; closing CTAs stack full-width below
+430px (`min-[430px]:flex-row`); `min-w-0` on grid children, no fixed widths.
+
+**Animation:** Intro = mount-time `staggerContainer` (2 children, gentle);
+LearningJourney/Approach = `whileInView` + `viewportOnce` item staggers;
+BuildingInterests and the closing section = single `fadeUp` reveals. No
+loops, no per-paragraph animation; reduced motion via `MotionConfig` +
+global CSS.
+
+### Skills Page (post-Phase 5)
+
+`pages/Skills.jsx` is a single file (no sub-components), driven by
+`data/skills.js`:
+
+```text
+Page
+├── PageHeader        (eyebrow "// Skills", h1 "Skills & Technologies", lead)
+├── intro <p>         (coursework / experimentation / projects framing, fadeUp)
+├── skill groups      <ul> ruled rows — border-t per row, border-b on list:
+│   ├── row: decorative icon + h2 category (left, md 13rem column)
+│   │        | <ul> of Chip skill pills (right) + honesty note (JavaScript)
+│   └── 6 groups from data/skills.js:
+│       Web fundamentals      HTML, CSS, JavaScript (basic knowledge, still learning)
+│       Frameworks & libraries React
+│       Programming           C#
+│       Databases & backend   MySQL, Supabase
+│       Version control       Git, GitHub
+│       Design tools          Figma, Inkscape, Canva, Adobe Photoshop
+├── focus Card        (h2 "What I'm focusing on now" + lead "learning goals in
+│                      progress — not finished achievements" + 4 goals, sm:2 cols)
+└── closing section   (h2 "See it in context" + prose interpolating project
+                       titles from data/projects.js + CTAs Button to="/projects"
+                       (primary) / to="/contact" (secondary))
+```
+
+**Honesty rules:** no percentages, ratings, levels, years, or project counts
+anywhere; JavaScript is explicitly labeled "basic knowledge, still learning";
+the focus list is framed as goals in progress; only owner-verified
+technologies appear (unverified former badges — Next.js, .NET, Blazor,
+Netlify, Render — were removed along with the badge images).
+
+**Heading hierarchy:** h1 → h2 per category, focus, and closing (no h3, no
+skips); category icons and focus dots decorative (`aria-hidden`); skills are
+plain-text chips — `Chip` renders the `<li>` inside a `<ul>`.
+
+**Responsive:** rows stack on mobile, `md:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]`;
+chips wrap (`flex-wrap`); focus grid 1→2 cols at `sm`; closing CTAs stack
+below 430px (`min-[430px]:flex-row`); `min-w-0` everywhere, no fixed widths.
+
+**Animation:** intro `fadeUp` on mount; group rows `whileInView` +
+`viewportOnce` stagger (rows animate as whole blocks — icons are never
+animated individually); focus card + closing section = single `fadeUp`
+reveals. No loops; reduced motion via `MotionConfig` + global CSS.
+
 ---
 
 ## 8. Design System (Tailwind v4 `@theme` in `src/index.css`)
@@ -381,7 +493,7 @@ before Phase 2; none was added).
   optional `hover` prop (`hover:border-primary`), motion-forwarding for
   variants, padding via `className` (standard `p-6`). Used by Skills + Resume.
 - **Chip** (`ui/Chip.jsx`): pill (`rounded-full bg-surface-elevated`), optional
-  `hover`. Used by Resume.
+  `hover`; renders an `<li>` (use inside a `<ul>`). Used by Skills + Resume.
 - **PageHeader** (`ui/PageHeader.jsx`): `// eyebrow` + `h1` + description,
   `align="center"` option; each page has exactly one `h1`.
 - **Form styles** (`utils/formStyles.js`): `labelClasses`, `inputClasses`,
@@ -491,8 +603,8 @@ optimization:
 
 **External assets (not in repo):**
 
-- 21 shields.io badge images in `src/data/skills.js` (rendered with
-  `loading="lazy"` on the Skills page).
+- None loaded as images — the Skills page renders text chips (Phase 5);
+  shields.io is no longer used anywhere.
 - lucide-react SVG icons (bundled).
 
 **Fonts:** `--font-mono: 'Fira Code', …` is declared in `@theme` but **no font
@@ -519,9 +631,9 @@ it into this file; it describes files that no longer exist.
 2. **Weak project presentation** `[OPEN]` — no screenshots, no visual
    differentiation between the two cards; the strongest content of the site is
    the least visual.
-3. **Badge-heavy Skills page** `[OPEN]` — 21 shields.io images clash with the
-   site's dark design tokens; section reads as a sticker sheet rather than a
-   skill breakdown.
+3. **Badge-heavy Skills page** `[RESOLVED — Phase 5]` — badges replaced by
+   categorized text chips driven by `data/skills.js`; no remote images remain
+   on the page.
 4. **Personal branding inconsistency** `[RESOLVED — Phase 2]` — Home hero now
    says "BSIT Student · Aspiring Web Developer" (was "Frontend Developer").
 5. **Inconsistent components** `[OPEN]` — two back-to-top controls (Footer
@@ -569,8 +681,9 @@ it into this file; it describes files that no longer exist.
 15. **Form errors not programmatically associated** `[OPEN]` — no
     `aria-invalid`/`aria-describedby` wiring in `pages/Contact.jsx`; only a
     form-level `role="status"` region.
-16. **Skill badges are image-only content** `[OPEN]` — no text fallback if
-    images fail.
+16. **Skill badges are image-only content** `[RESOLVED — Phase 5]` — badges
+    removed; skills are now real text with an explicit JavaScript honesty
+    note.
 17. **`role="status"` on the static Hero availability pill**
     `[RESOLVED — Phase 3]` — pill removed; availability is now plain
     `figcaption` text in the Hero visual card (no live region anywhere on
@@ -578,8 +691,8 @@ it into this file; it describes files that no longer exist.
 
 ### Performance
 
-18. **21 remote badge requests** `[OPEN]` — third-party shields.io requests on
-    the Skills page (now `loading="lazy"`, still a network dependency).
+18. **21 remote badge requests** `[RESOLVED — Phase 5]` — shields.io is no
+    longer used anywhere; the Skills page makes zero remote image requests.
 19. **framer-motion is the largest non-React bundle** `[OPEN]` (~127 KB /
     41.7 KB gzip, Vite `manualChunks` `motion` chunk) for effects that CSS
     could do.
@@ -608,8 +721,9 @@ it into this file; it describes files that no longer exist.
 
 ## 14. Content/Data Rules
 
-- `src/data/projects.js` (2 projects), `skills.js` (4 badge groups),
-  `socialLinks.js` (Email + GitHub) — single source, never duplicated in pages.
+- `src/data/projects.js` (2 projects), `skills.js` (6 skill groups / 13 text
+  skills), `socialLinks.js` (Email + GitHub) — single source, never
+  duplicated in pages.
 - Resume PDF: `/MarcResume.pdf`. Profile image: `/images/profile.jpg`.
 - EmailJS (hard-coded in `src/pages/Contact.jsx`): service `service_2a39b0m`,
   template `template_d8s622i`, public key `x3w2xijWKl8BvMqHt`.
@@ -684,3 +798,37 @@ it into this file; it describes files that no longer exist.
 - Structural responsive review (320–1440): clamp/min-w-0/flex-wrap only, CTA
   stack below 430px — pixel-level + real-console checks deferred to QA phase
   (no browser automation in this environment).
+
+### End of Phase 4 (About page)
+
+- `npm run build` ✓ (2134 modules; CSS 31.33 kB / gzip 6.78 kB; no warnings).
+- SSR smoke render (Vite `ssrLoadModule` + `MemoryRouter`, throwaway script):
+  **35/35 checks ✓** — About: single `h1` = "A little about me"; heading
+  sequence 1→2→3 with no skips; portrait `alt` + declared `width`/`height`;
+  facts `<dl>`; `href="/projects"` and `href="/skills"` CTAs; project list
+  rendered from `data/projects.js`; zero hash anchors; no `role="status"`; no
+  `undefined` output. Regression: Home/Skills/Resume/Contact/Projects/
+  NotFound all render with no `undefined`; Home keeps its single h1 and both
+  CTAs.
+- `vite preview` direct loads `/`, `/about`, `/resume` → 200 + SPA shell ✓.
+- Not performed: real-browser visual checks at the target viewport widths
+  (no browser automation in this environment) — deferred to QA phase.
+
+### End of Phase 5 (Skills page)
+
+- `npm run build` ✓ (2134 modules; CSS 31.30 kB / gzip 6.77 kB; no warnings).
+- SSR smoke render (Vite `ssrLoadModule` + `MemoryRouter`, throwaway script):
+  **55/55 checks ✓** — Skills: single `h1` = "Skills & Technologies"; all 6
+  categories and all 13 skill chips present; JavaScript honesty note attached
+  ("JavaScript: basic knowledge, still learning"); learning-goals framing;
+  absence of Next.js/.NET/Blazor/Netlify/Render, shields.io, any `<img>`,
+  `%`, hash anchors, and `role="status"`; CTAs `href="/projects"` +
+  `href="/contact"`; project titles interpolated from `data/projects.js`;
+  heading sequence 1→2 with no skips. Regression: About/Home/Resume/
+  Contact/Projects/NotFound all render with no `undefined`; About and Home
+  h1s intact.
+- `vite preview` direct loads `/`, `/about`, `/skills`, `/projects` → 200 +
+  SPA shell ✓.
+- Not performed: real-browser visual checks at target viewport widths and a
+  live keyboard-focus pass (no browser automation in this environment) —
+  deferred to QA phase.

@@ -86,6 +86,11 @@ marcportfolio/
 │   │   ├── home/
 │   │   │   ├── Hero.jsx       # Home hero: content stack + photo figure + CTAs (Phase 3)
 │   │   │   └── SelectedWork.jsx # 2 project teasers → /projects (Phase 3)
+│   │   ├── about/
+│   │   │   ├── Intro.jsx      # First-person intro + portrait + fact strip (Phase 4)
+│   │   │   ├── LearningJourney.jsx # 6 learning themes in a responsive grid (Phase 4)
+│   │   │   ├── BuildingInterests.jsx # Prose + project list from data/projects.js (Phase 4)
+│   │   │   └── Approach.jsx   # 4 numbered principles (Phase 4)
 │   │   └── ui/
 │   │       ├── Button.jsx     # Polymorphic Link/anchor/button
 │   │       ├── Card.jsx       # Motion-forwarding surface card
@@ -129,8 +134,8 @@ only through Vite `manualChunks` (§15).
 | Path | Component | Notes |
 | --- | --- | --- |
 | `/` (index) | Home | Hero only; `end` on its NavLink |
-| `/about` | About | |
-| `/skills` | Skills | |
+| `/about` | About | Intro + sections + closing CTA (§5) |
+| `/skills` | Skills | Skill groups + focus + CTA (§5) |
 | `/projects` | Projects | |
 | `/resume` | Resume | `/MarcResume.pdf` download/view |
 | `/contact` | Contact | EmailJS form |
@@ -178,8 +183,11 @@ App (MotionConfig)
     │   ├── Home      → components/home/Hero + SelectedWork
     │   │               Hero → Button, SocialLinks, animations, container
     │   │               SelectedWork → Button, Link, data/projects, animations
-    │   ├── About     → Page, PageHeader, local highlights + lucide icons
-    │   ├── Skills    → Page, PageHeader, Card, data/skills, animations
+    │   ├── About     → Page, PageHeader + components/about/ sections
+    │   │               Intro → animations, LearningJourney → lucide icons,
+    │   │               BuildingInterests → Link + data/projects, Approach
+    │   ├── Skills    → Page, PageHeader, Card, Chip, Button, data/skills,
+    │   │               data/projects, animations
     │   ├── Projects  → Page, PageHeader, ProjectCard, Button, data/projects
     │   ├── Resume    → Page, PageHeader, Button, Card, Chip, animations
     │   ├── Contact   → Page, PageHeader, Button, formStyles, @emailjs/browser
@@ -241,6 +249,78 @@ pages/Home.jsx            (composition only — no markup of its own)
   photo right); CTA row stacks below 430px (`min-[430px]:flex-row`); photo
   `w-[min(100%,clamp(220px,60vw,300px))]` mobile → `clamp(240px,24vw,340px)`
   `md+`; clamp/min-w-0/wrap everywhere, no fixed widths.
+
+**About page structure (Phase 4)**
+
+```text
+pages/About.jsx                  (PageHeader + composition + closing CTA)
+├── ui/PageHeader                (h1 "A little about me" + lead description)
+├── components/about/Intro.jsx
+│   ├── grid [minmax(0,1.2fr)_minmax(0,0.8fr)] (md+): 3 intro paragraphs
+│   │   | portrait figure (/images/profile.jpg)
+│   └── <dl> fact strip: Education / Based in / Focus (border-t, sm:3 cols)
+├── components/about/LearningJourney.jsx
+│   └── h2 + lead + 6 theme items (lucide icon + h3 + line), grid 1→2→3
+├── components/about/BuildingInterests.jsx
+│   ├── h2 + 2 prose paragraphs
+│   └── "Projects so far" list → Link to="/projects" (data/projects.js)
+├── components/about/Approach.jsx
+│   └── h2 + lead + 4 numbered principles (aria-hidden mono numbers), sm:2 cols
+└── closing <section>: h2 + statement + Button to="/projects" (primary)
+                       + Button to="/skills" (secondary)
+```
+
+- **Reusable components used:** `Page`, `PageHeader`, `Button`, `fadeUp` /
+  `staggerContainer` / `staggerItem` / `viewportOnce`
+  (`utils/animations.js`), `containerClasses` (`utils/container.js`),
+  `data/projects.js`. No new primitives, no new dependencies, no data
+  duplication.
+- **Routing destinations:** `/projects` (project list rows + primary CTA) and
+  `/skills` (secondary CTA) — all React Router `Link`s; hash anchors
+  intentionally absent.
+- **Animation:** Intro = mount-time stagger; LearningJourney/Approach =
+  `whileInView` + `viewportOnce` item staggers; BuildingInterests/closing =
+  single `fadeUp` reveals. No loops; reduced motion via `MotionConfig` +
+  global CSS. The pathname-based page fade in Layout is untouched.
+- **Responsive:** content-first DOM order (intro text before portrait on
+  mobile); journey grid `lg:3 → sm:2 → 1`; approach/facts `sm:2|3 → 1`;
+  portrait `w-[min(100%,clamp(200px,55vw,240px))]` → `clamp(200px,20vw,250px)`
+  `md+`; closing CTAs stack below 430px; `min-w-0` everywhere, no fixed
+  widths.
+
+**Skills page structure (Phase 5)**
+
+```text
+pages/Skills.jsx                 (single file — no sub-components)
+├── ui/PageHeader                (h1 "Skills & Technologies" + lead)
+├── intro <p>                    (coursework/experimentation/projects framing)
+├── <ul> skill groups            (border-t rows, border-b on the list)
+│   └── row: icon + h2 category | <ul> of Chip pills + optional note
+│       (6 groups from data/skills.js — verified profile only)
+├── ui/Card                      (h2 "What I'm focusing on now" + 4 learning
+│                                  goals in a sm:2-col list)
+└── closing <section>: h2 + prose with project titles from data/projects.js
+                       + Button to="/projects" (primary)
+                       + Button to="/contact" (secondary)
+```
+
+- **Reusable components used:** `Page`, `PageHeader`, `Card`, `Chip` (renders
+  the `<li>`), `Button`, `fadeUp` / `staggerContainer` / `staggerItem` /
+  `viewportOnce`, `data/skills.js`, `data/projects.js`. Icon names in the
+  data map to `lucide-react` components via a local `iconMap` (same pattern
+  as `data/socialLinks.js` + `SocialLinks`).
+- **Honesty:** no percentages/ratings/levels/years; JavaScript carries a
+  "basic knowledge, still learning" note; focus items are labeled learning
+  goals. Unverified badge entries were removed with the badge redesign.
+- **Routing destinations:** `/projects` (primary CTA) and `/contact`
+  (secondary CTA) — React Router only, no hash anchors.
+- **Animation:** intro `fadeUp` on mount; group rows `whileInView` +
+  `viewportOnce` stagger (rows animate as blocks — icons never individually);
+  focus card + closing = single `fadeUp` reveals. No loops; the pathname
+  page fade in Layout is untouched.
+- **Responsive:** rows stack on mobile → `md:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]`;
+  chips `flex-wrap`; focus grid 1→2 at `sm`; closing CTAs stack below 430px;
+  `min-w-0` everywhere, no fixed widths.
 
 ---
 
@@ -313,7 +393,7 @@ use `border-border-strong`.
 | Referenced in JSX | Plain string paths (`src="/images/profile.jpg"`) — not imported, so not hashed/processed by Vite |
 | Resume | `href="/MarcResume.pdf"` with `download` attribute (Resume page) |
 | Meta images | `og:image` / `twitter:image` → `/images/profile.jpg` (relative URL — works on Vercel, is invalid for some crawlers without an absolute URL) |
-| Skills badges | Remote `https://img.shields.io/...` URLs from `data/skills.js` (21 images, `loading="lazy"` on render) |
+| Skills badges | None — Skills renders text chips (Phase 5); shields.io no longer used |
 | Icons | Bundled `lucide-react` components |
 | Unused | `ME.jpg` (root), `src/assets/MarcResume.pdf` |
 
@@ -332,18 +412,20 @@ src/data/projects.js
       technologies[], features[], demo, github, featured }, … ]   // 2 entries
 
 src/data/skills.js
-  export const skills = [ { category, badges: [{ name, src }] } ]  // 4 groups,
-                                                                   // 21 remote badge URLs
+  export const skillGroups = [ { id, title, icon, skills: [{ name, note? }] } ]
+                                                                   // 6 groups, 13 text skills
 
 src/data/socialLinks.js
   export const socialLinks = [ { id, label, ariaLabel, handle, url,
       icon, external } ]                                          // 2 entries: Email, GitHub
 ```
 
-**Hardcoded-in-component data (not yet centralized):** `Home.techTags`,
-`About.highlights`, `Navbar.navLinks`, `Resume.technicalHighlights`,
-`Resume.focusAreas`, `Contact.contactCards`. These duplicate knowledge that
-also lives in `data/`.
+**Local component data (not yet centralized):** `About` sections' `facts`
+(`about/Intro.jsx`), `journey` (`about/LearningJourney.jsx`), `principles`
+(`about/Approach.jsx`), `Navbar.navLinks`, `Resume.technicalHighlights`,
+`Resume.focusAreas`, `Contact.contactCards`. These are page-specific content
+with no counterpart in `data/` (the old `Home.techTags` and `About.highlights`
+were removed in Phases 3 and 4).
 
 ---
 
@@ -391,14 +473,20 @@ in `App.jsx`, plus a CSS `@media (prefers-reduced-motion: reduce)` override.
 
 **Usage map**
 
-- Home: entrance sequence, avatar float loop (4.5s), status-dot pulse (1.8s).
-- Pages (Skills/Projects/Resume/Contact): content blocks use
+- Home: Hero mount-time stagger + one photo entrance; Selected Work blocks
+  use `whileInView` + `viewportOnce` (all loops removed in Phase 3).
+- About (Phase 4): Intro mount-time stagger; LearningJourney/Approach item
+  staggers and BuildingInterests/closing `fadeUp`, all `whileInView` once.
+- Skills (Phase 5): intro `fadeUp` on mount; skill-group rows stagger
+  `whileInView`; focus card + closing `fadeUp`, `whileInView` once.
+- Pages (Projects/Resume/Contact): content blocks use
   `initial="hidden" whileInView="visible"`.
 - Route change: `motion.main key={pathname}` — 0.25s fade.
 - Cards/social links: `whileHover` y −2/−4px; `BackToTop` `whileTap` 0.95.
 - Buttons/Chips: CSS-only hover scale/translate (no motion).
 - `BackToTop`: `AnimatePresence` mount/unmount.
-- CSS-only animation: `--animate-bounce-soft` keyframes (Home scroll-down link).
+- CSS-only animation: `--animate-bounce-soft` keyframes — token declared but
+  currently unused (the Home scroll-down link was removed in Phase 3).
 
 ---
 
@@ -428,12 +516,12 @@ Do not change deployment settings without explicit instruction.
 | Service | Used by | Purpose |
 | --- | --- | --- |
 | EmailJS (`@emailjs/browser`) | `pages/Contact.jsx` | Sends the contact form to Marc's inbox (config hardcoded in source) |
-| img.shields.io | `data/skills.js` | Skill badge images (21 remote requests, lazy-loaded) |
 | Vercel | hosting | Deployment + HTTPS + CDN |
 | GitHub | repo + Projects links | Source control, profile link |
 | lucide.dev icons (bundled) | all components | Icon set |
 
-Not used: analytics, auth, CMS, CDN font services.
+Not used: analytics, auth, CMS, CDN font services, img.shields.io (badge
+images removed in Phase 5 — Skills renders text chips).
 
 ---
 
@@ -544,3 +632,39 @@ change complete:
   files, `index.css`, all other pages.
 - Validated: build ✓, SSR 20/20 checks ✓, preview + dev route/transform
   checks ✓ (details in `PROJECT_CONTEXT.md` §16).
+
+### Phase 4 (About page UI/UX redesign)
+
+- Rewrote `src/pages/About.jsx` as a composition of `PageHeader` + new
+  `src/components/about/` sections: `Intro` (first-person introduction,
+  portrait figure, Education/Based-in/Focus fact strip), `LearningJourney`
+  (6 themes drawn from documented skills), `BuildingInterests` (prose +
+  project list built from `data/projects.js`), `Approach` (4 numbered
+  principles), plus a closing CTA section (`/projects`, `/skills`).
+- Replaced the old About highlight cards and "Background & Focus" header.
+- Reused `Page`, `PageHeader`, `Button`, animation utilities, and design
+  tokens; no new dependencies. Navbar, Footer, routing, and all other pages
+  untouched.
+- Validated: `npm run build` ✓, SSR smoke render 35/35 checks ✓ (About
+  structure, heading hierarchy, and 6-page regression render),
+  `vite preview` `/` `/about` `/resume` → 200 ✓ (details in
+  `PROJECT_CONTEXT.md` §16).
+
+### Phase 5 (Skills page UI/UX redesign)
+
+- Restructured `src/data/skills.js`: `skillGroups` replaces the badge schema
+  — 6 groups / 13 text skills with `icon` names and an optional per-skill
+  `note` (JavaScript: "basic knowledge, still learning"). All shields.io
+  badge URLs removed; unverified entries (Next.js, .NET, Blazor, Vercel,
+  Netlify, Render, Tailwind-as-skill) no longer displayed.
+- Rewrote `src/pages/Skills.jsx`: PageHeader ("Skills & Technologies") +
+  honest intro paragraph, ruled category rows (icon + h2 + `Chip` pills +
+  JavaScript note), a `Card` of 4 learning goals, and a closing section
+  interpolating project titles from `data/projects.js` with `/projects` and
+  `/contact` CTAs.
+- No new dependencies; Navbar, Footer, routing, and all other pages
+  untouched.
+- Validated: `npm run build` ✓, SSR smoke render 55/55 checks ✓ (Skills
+  structure, honesty absences, CTA links, heading hierarchy, 7-page
+  regression render), `vite preview` `/` `/about` `/skills` `/projects` →
+  200 ✓ (details in `PROJECT_CONTEXT.md` §16).

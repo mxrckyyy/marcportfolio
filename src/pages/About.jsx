@@ -1,77 +1,54 @@
-import { GraduationCap, MapPin, Code, Lightbulb } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ArrowRight } from 'lucide-react'
 import Page from '../components/layout/Page'
 import PageHeader from '../components/ui/PageHeader'
-
-const highlights = [
-  {
-    id: 'education',
-    label: 'Education',
-    value: 'BS Information Technology (2nd Year)',
-    icon: GraduationCap,
-  },
-  {
-    id: 'location',
-    label: 'Location',
-    value: 'Cebu City, Philippines',
-    icon: MapPin,
-  },
-  {
-    id: 'focus',
-    label: 'Core Focus',
-    value: 'Frontend Development & Web Applications',
-    icon: Code,
-  },
-  {
-    id: 'interests',
-    label: 'Interest Areas',
-    value: 'UI/UX Design, Relational Databases, Version Control',
-    icon: Lightbulb,
-  },
-]
+import Button from '../components/ui/Button'
+import Intro from '../components/about/Intro'
+import LearningJourney from '../components/about/LearningJourney'
+import BuildingInterests from '../components/about/BuildingInterests'
+import Approach from '../components/about/Approach'
+import { viewportOnce, fadeUp } from '../utils/animations'
 
 function About() {
   return (
     <Page>
       <PageHeader
         eyebrow="About"
-        title="About Me"
-        description="Background & Focus"
+        title="A little about me"
+        description="I'm Marc, a BSIT student exploring web development and building practical projects as I continue learning."
       />
 
-      <div className="grid gap-[clamp(2rem,4vw,3.5rem)] md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:items-start">
-        <div className="flex flex-col gap-4 text-[1.05rem] text-muted">
-          <p>
-            I am a 19-year-old 2nd-year BS Information Technology student at
-            Asian College of Technology (ACT) in Cebu City, Philippines. I am
-            passionate about web development, UI design, and turning concepts
-            into working applications.
-          </p>
-          <p>
-            My approach focuses on writing clean, readable code and
-            understanding the core mechanics behind modern frameworks. Whether
-            building interactive React interfaces, working with relational
-            databases like MySQL and Supabase, or modeling application logic in
-            C#, I enjoy tackling new technical challenges.
-          </p>
-        </div>
+      <Intro />
+      <LearningJourney />
+      <BuildingInterests />
+      <Approach />
 
-        <ul className="grid gap-4 sm:grid-cols-2">
-          {highlights.map(({ id, label, value, icon: Icon }) => (
-            <li
-              className="rounded-md border border-border-subtle bg-surface p-5 transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-primary"
-              key={id}
-            >
-              <Icon size={20} className="mb-3 text-primary" aria-hidden="true" />
-              <p className="mb-1 font-mono text-[0.72rem] font-medium uppercase tracking-[0.06em] text-muted">
-                {label}
-              </p>
-              <p className="text-[0.95rem] font-semibold leading-snug text-foreground">
-                {value}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <motion.section
+        className="mt-14 rounded-lg border border-border-subtle bg-surface p-6 sm:p-8 md:mt-16"
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={fadeUp}
+      >
+        <h2 className="text-lg font-bold tracking-[-0.01em] text-foreground">
+          What I&apos;m working toward
+        </h2>
+        <p className="mt-3 max-w-[640px] text-[1.05rem] leading-relaxed text-muted">
+          I&apos;m still early in this journey, and there&apos;s a lot I
+          haven&apos;t learned yet — that&apos;s the part I look forward to.
+          The goal is straightforward: keep studying, keep building projects I
+          can be honest about, and grow into a developer who ships work
+          that&apos;s useful and easy to use.
+        </p>
+        <div className="mt-6 flex flex-col gap-3 min-[430px]:flex-row min-[430px]:flex-wrap sm:gap-4">
+          <Button to="/projects" variant="primary" size="lg">
+            Explore My Projects <ArrowRight size={16} aria-hidden="true" />
+          </Button>
+          <Button to="/skills" variant="secondary" size="lg">
+            View My Skills
+          </Button>
+        </div>
+      </motion.section>
     </Page>
   )
 }
