@@ -212,13 +212,20 @@ the title).
   data-driven skills, selected projects) + View/Download PDF actions + a
   print stylesheet scoped to this page only via `body[data-print-resume]`
   (see §7).
-- **Not started** (later phases): page redesigns (Contact, Footer polish),
-  new portfolio sections, per-route SEO titles/
-  meta, security audit, performance optimization, final QA.
+- **Phase 8 (Contact page redesign + EmailJS env config): COMPLETE** —
+  `pages/Contact.jsx` is now a thin composition of new
+  `components/contact/ContactInfo.jsx` (contact cards driven by
+  `data/socialLinks.js`) and `components/contact/ContactForm.jsx`
+  (per-field accessible validation, loading/success/error states, EmailJS
+  config moved from hardcoded values to `VITE_EMAILJS_*` env vars) (see §7).
+- **Not started** (later phases): Footer polish, new portfolio sections,
+  per-route SEO titles/meta, security audit, performance optimization,
+  final QA. **Configuration task (not a phase):** the three EmailJS env vars
+  must be added in Vercel before the next deploy (see §16).
 
 ---
 
-## 7. Current Architecture (post-Phase 7)
+## 7. Current Architecture (post-Phase 8)
 
 Multi-page SPA. Seven real routes served by React Router; shared Navbar/Footer
 via a layout route with `<Outlet />`.
@@ -230,7 +237,7 @@ via a layout route with `<Outlet />`.
 | `/skills` | `Skills` | Intro, 6 categorized skill groups (text chips), learning focus, projects CTA |
 | `/projects` | `Projects` | Header + 2 preview-led project cards + GitHub banner (no filters — only 2 projects) |
 | `/resume` | `Resume` | My Resume header + View/Download PDF actions + document-style sheet: identity/links, profile, education, skills (from `data/skills.js`), selected projects (from `data/projects.js`) |
-| `/contact` | `Contact` | Contact cards + EmailJS form |
+| `/contact` | `Contact` | Contact information cards (from `data/socialLinks.js` + phone/location) + EmailJS contact form (env-configured) |
 | `*` | `NotFound` | 404 with links home/to projects |
 
 ```text
@@ -247,7 +254,7 @@ App (MotionConfig reducedMotion="user")
             └── BackToTop
 ```
 
-### File map (post-Phase 7)
+### File map (post-Phase 8)
 
 ```text
 src/
@@ -256,6 +263,8 @@ src/
 │   ├── home/     Hero.jsx, SelectedWork.jsx   (Home page sections, Phase 3)
 │   ├── about/    Intro.jsx, LearningJourney.jsx, BuildingInterests.jsx,
 │   │             Approach.jsx   (About page sections, Phase 4)
+│   ├── contact/  ContactInfo.jsx, ContactForm.jsx   (Contact page sections,
+│   │             Phase 8)
 │   └── ui/       Button.jsx, Card.jsx, Chip.jsx, PageHeader.jsx,
 │                 ProjectCard.jsx, SocialLinks.jsx, BackToTop.jsx
 ├── pages/        Home, About, Skills, Projects, Resume, Contact, NotFound (.jsx)
@@ -266,6 +275,8 @@ src/
 └── index.css     (Tailwind v4 import + @theme tokens + global base + print
                    block scoped to Resume via body[data-print-resume], 175 lines)
 vercel.json       (SPA rewrite: all routes → /index.html)
+.env.example      (EmailJS env var names + setup instructions — no real values)
+.env.local        (gitignored via *.local — actual VITE_EMAILJS_* values)
 ```
 
 Removed in Phase 2 (superseded): `components/sections/*` (became pages),
@@ -553,6 +564,98 @@ on mount only. The document body is intentionally static (no
 
 ---
 
+### Contact Page (post-Phase 8)
+
+`pages/Contact.jsx` is a thin composition (Home/About pattern) of two new
+section components:
+
+```text
+Page
+├── PageHeader (eyebrow "// Contact", h1 "Let's work together",
+│               honest lead: 2nd-year BSIT student, open to projects,
+│               collaborations, opportunities)
+└── grid (gap-6, items-start; 1 col → md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)])
+    ├── components/contact/ContactInfo.jsx
+    │   ├── h2 "Contact information" + short lead
+    │   └── <ul> auto-fit cards (minmax(230px,1fr)) — 4 entries:
+    │       ├── Email  (from data/socialLinks.js — mailto, no target)
+    │       ├── Phone  (local verified data — tel: link)
+    │       ├── Location (local verified data — static div, not a link)
+    │       └── GitHub (from data/socialLinks.js — target=_blank +
+    │                   rel="noreferrer noopener")
+    └── components/contact/ContactForm.jsx
+        ├── h2 "Send me a message" + short lead
+        └── motion.form (noValidate, aria-busy, aria-labelledby)
+            ├── required-fields hint ("Fields marked with * are required",
+            │   asterisk aria-hidden + sr-only "an asterisk")
+            ├── Name (required, autocomplete=name)
+            ├── Email (required, type=email, inputmode, autocomplete=email)
+            ├── Subject (optional, autocomplete=off, defaults to
+            │           "Portfolio inquiry" in the template params)
+            ├── Message (required, textarea rows=5)
+            ├── persistent live region (div role="status" aria-live="polite"
+            │   tabindex=-1 — always in the DOM so messages are announced)
+            └── submit Button (primary; disabled + Loader2 spinner +
+                               "Sending…" while pending)
+```
+
+**Contact data rules:** Email and GitHub cards are derived from
+`data/socialLinks.js` (single source — display value = `handle` for `mailto`,
+URL with the protocol stripped for `http(s)`); the email card is omitted
+entirely if the email entry ever disappears from the data file. Phone
+(`09690487218`) and Location (`Cebu City, Philippines`) remain verified local
+component data (§14). Nothing else is displayed — no invented details.
+
+**Validation (custom, accessible):** `noValidate` on the form + exported
+`validateContactForm(values)` helper (empty/whitespace name, empty or
+malformed email via `/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/`, empty message; subject
+never fails). Each failing field renders `<p id="{id}-error">` wired with
+`aria-invalid="true"` + `aria-describedby="{id}-error"`; inputs get a red
+border via `aria-invalid:border-danger` (added to `formStyles.js` `fieldBase`,
+which only Contact uses). On failure a summary status is set and focus moves
+to the first invalid field **after** React commits (so the description is
+already in the DOM). Editing a field clears its own error; a success status is
+cleared by editing, error statuses persist until the next submit.
+
+**Submission states:** pending → `isSending` disables the submit button,
+sets `aria-busy="true"` on the form, shows an sr-only "Sending your message…"
+live-region message, and moves focus to the status region (so disabling the
+button never drops keyboard focus). Success → form resets **only now**, green
+status message. Failure → red status with a `mailto:` fallback link to the
+verified address; **form values are never cleared on failure**. A repeated
+Enter press while pending is blocked by an `if (isSending) return` guard.
+Duplicate submissions are therefore impossible while a request is in flight.
+
+**EmailJS configuration (issue #22 resolved):** the hardcoded
+service/template/public-key values were removed from source. `ContactForm.jsx`
+reads `import.meta.env.VITE_EMAILJS_SERVICE_ID`,
+`VITE_EMAILJS_TEMPLATE_ID`, and `VITE_EMAILJS_PUBLIC_KEY` and exports
+`isEmailJsConfigured`. `.env.local` (gitignored by the existing `*.local`
+rule) holds the real values for local dev/build; `.env.example` documents the
+names and setup steps with no values. If any variable is missing, submitting
+shows an explicit "not configured" error with a `mailto:` fallback instead of
+failing silently or claiming success. The public key is a client-side public
+value by design (never a private key); the same three variables must be added
+to Vercel project settings before the next deployment.
+
+**Heading hierarchy:** h1 (PageHeader) → h2 per section ("Contact
+information", "Send me a message"); no h3, no skipped levels. Icons are
+decorative (`aria-hidden`); contact cards are a real `<ul>`/`<li>` list; every
+control has a visible `<label>`; external link safety only on the GitHub card.
+
+**Responsive:** mobile-first — single column (info cards then form), cards
+`auto-fit minmax(230px,1fr)` (no horizontal overflow at 320px), inputs
+`w-full`, submit button full-width below `sm`, `min-w-0` on grid children and
+sections; two-column balance from `md` with the wider (1.1fr) form column as
+the primary focus.
+
+**Animation:** PageHeader's `fadeUp`; contact cards `staggerContainer` +
+`staggerItem` on `whileInView` (once) with the documented y −2px hover lift on
+each `<li>`; form single `fadeUp` on `whileInView`. No loops; reduced motion
+via `MotionConfig reducedMotion="user"` + global CSS.
+
+---
+
 ## 8. Design System (Tailwind v4 `@theme` in `src/index.css`)
 
 ### Color tokens → utilities
@@ -621,9 +724,12 @@ before Phase 2; none was added).
   `align="center"` option; each page has exactly one `h1`.
 - **Form styles** (`utils/formStyles.js`): `labelClasses`, `inputClasses`,
   `textareaClasses`, `errorClasses`, `statusClasses.success|error`.
-  Field-error pattern when needed: error `<p id="{id}-error">` + control gets
-  `aria-describedby="{id}-error"` (and `aria-invalid`); Contact currently uses a
-  form-level `role="status"` region instead.
+  `fieldBase` now also carries `aria-invalid:border-danger` /
+  `aria-invalid:focus:border-danger` (only Contact imports these classes).
+  Field-error pattern (in use since Phase 8 by the Contact form): error
+  `<p id="{id}-error">` + control gets `aria-describedby="{id}-error"` and
+  `aria-invalid="true"`, plus a form-level `role="status"` live region for
+  the submission summary.
 
 ---
 
@@ -812,9 +918,11 @@ it into this file; it describes files that no longer exist.
     `border-strong` is now the documented default for interactive controls in
     the token system (see Accessibility Baseline). Keep this convention when
     adding components.
-15. **Form errors not programmatically associated** `[OPEN]` — no
-    `aria-invalid`/`aria-describedby` wiring in `pages/Contact.jsx`; only a
-    form-level `role="status"` region.
+15. **Form errors not programmatically associated**
+    `[RESOLVED — Phase 8]` — `components/contact/ContactForm.jsx` wires
+    `aria-invalid` + `aria-describedby` per field, a persistent
+    `role="status"` live region, and focus management to the first invalid
+    field.
 16. **Skill badges are image-only content** `[RESOLVED — Phase 5]` — badges
     removed; skills are now real text with an explicit JavaScript honesty
     note.
@@ -838,8 +946,13 @@ it into this file; it describes files that no longer exist.
 
 ### Technical / Maintainability
 
-22. **Hardcoded EmailJS configuration** `[OPEN]` —
-    `src/pages/Contact.jsx:104-106` instead of environment variables.
+22. **Hardcoded EmailJS configuration** `[RESOLVED — Phase 8]` —
+    `components/contact/ContactForm.jsx` now reads
+    `VITE_EMAILJS_SERVICE_ID` / `VITE_EMAILJS_TEMPLATE_ID` /
+    `VITE_EMAILJS_PUBLIC_KEY` from Vite env vars (`.env.local`, gitignored;
+    names documented in `.env.example`). **Open follow-up:** the same three
+    variables are not yet configured in Vercel — until they are, the deployed
+    form shows its explicit "not configured" error with a mailto fallback.
 23. **Single 1540-line `index.css`** `[RESOLVED — Phase 2]` — now 175 lines
     (`@import "tailwindcss"` + `@theme` tokens + `@layer base` + a
     Resume-scoped `@media print` block, Phase 7); component
@@ -860,8 +973,11 @@ it into this file; it describes files that no longer exist.
   skills), `socialLinks.js` (Email + GitHub) — single source, never
   duplicated in pages.
 - Resume PDF: `/MarcResume.pdf`. Profile image: `/images/profile.jpg`.
-- EmailJS (hard-coded in `src/pages/Contact.jsx`): service `service_2a39b0m`,
-  template `template_d8s622i`, public key `x3w2xijWKl8BvMqHt`.
+- EmailJS (Phase 8: env-driven, **never hardcode values here**) — variables
+  `VITE_EMAILJS_SERVICE_ID`, `VITE_EMAILJS_TEMPLATE_ID`,
+  `VITE_EMAILJS_PUBLIC_KEY`; real values live in gitignored `.env.local`
+  (setup documented in `.env.example` and the EmailJS dashboard), and must be
+  mirrored in Vercel project settings before deploying.
 - Contact: johnmarccomeros16@gmail.com · 09690487218 · Cebu City ·
   github.com/mxrckyyy.
 
@@ -1016,3 +1132,46 @@ it into this file; it describes files that no longer exist.
 - Not performed: real-browser visual check of the document layout, an
   actual Ctrl+P print preview (page count/color), and a keyboard-focus pass
   (no browser automation in this environment) — deferred to QA phase.
+
+### End of Phase 8 (Contact page)
+
+- `npm run build` ? (2136 modules; CSS 33.99 kB / gzip 7.28 kB; no warnings).
+  Built bundle verified to inline `VITE_EMAILJS_SERVICE_ID` from `.env.local`
+  and to contain the not-configured fallback branch.
+- SSR smoke render (Vite `ssrLoadModule` + `MemoryRouter`, throwaway script,
+  deleted afterwards): **73/73 checks ?** (configured run) � Contact: single
+  `h1` = "Let's work together"; exactly 2 h2 sections; honest BSIT/aspiring
+  positioning copy; all contact data present (mailto + displayed email, tel +
+  phone, location, GitHub URL/handle) derived from `data/socialLinks.js` +
+  verified local values; link safety (exactly one `target="_blank"` = the
+  GitHub card with `rel="noreferrer noopener"`, mailto without target); all 4
+  `label for=` pairs; input types/`autocomplete`/`inputmode`; `required` on
+  name/email/message only; subject marked "(optional)" and not required; no
+  `aria-invalid`/`aria-describedby`/error text before submit; persistent
+  `role="status"` + `aria-live="polite"` + `tabindex="-1"` region; form
+  `novalidate`/`aria-busy="false"`/`aria-labelledby`; submit enabled with
+  "Send Message"; required-fields hint; no `undefined` output; zero React
+  warnings/errors during renders. Validation helper unit-checked: empty form ?
+  name+email+message errors (no subject key), whitespace-only name/message ?
+  errors, invalid email and TLD-less email ? errors, valid trimmed input ? no
+  errors. Regression: Home/About/Skills/Projects/Resume/NotFound each render
+  with a single h1 and no `undefined`.
+- Missing-env simulation ?: `.env.local` temporarily moved to `%TEMP%` and
+  restored � `isEmailJsConfigured === false` (72/72 checks pass in that mode);
+  confirms missing variables are detected rather than silently treated as
+  valid configuration. `.env.local` confirmed gitignored via the existing
+  `*.local` rule.
+- `vite preview` direct loads `/`, `/contact`, `/about`, `/skills`,
+  `/projects`, `/resume`, and an unknown route ? 200 + SPA shell ? (run
+  twice: initial build and final build); preview process cleaned up, port
+  4173 free.
+- Built CSS audit: `.aria-invalid\:border-danger` rules are emitted **after**
+  `.focus\:border-primary:focus`, so invalid fields keep their red border
+  while focused (focus ring still provided by the global `:focus-visible`
+  outline).
+- Not performed: a real EmailJS submission (no configured test email was
+  sent � no delivery claim), interactive form flows in a real browser
+  (validation UI, loading/success/error transitions, focus movement, live
+  region announcements), visual checks at 320�1440 px, a keyboard-navigation
+  walkthrough, and a real-browser console check (no browser automation in
+  this environment) � deferred to QA phase.

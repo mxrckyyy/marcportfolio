@@ -44,8 +44,9 @@ This is mandatory for future phases.
 | Runtime (local) | Node v24.19.0 (satisfies Vite 7: ^20.19 or ≥22.12) | — |
 
 **Not present:** TypeScript, CSS frameworks besides Tailwind, state
-libraries (Redux/Zustand), backend code, tests, linter/formatter, `.env`
-files, CI config.
+libraries (Redux/Zustand), backend code, tests, linter/formatter, CI config.
+**Env files:** `.env.example` (variable names + setup docs, no values) and
+gitignored `.env.local` (real `VITE_EMAILJS_*` values) exist since Phase 8.
 
 ---
 
@@ -62,6 +63,8 @@ marcportfolio/
 ├── PORTFOLIO_CONTEXT.txt      # Original build blueprint (10-phase plan)
 ├── PROJECT_CONTEXT.md         # Source of truth: context, content rules, issues
 ├── PROJECT_ARCHITECTURE.md    # This file
+├── .env.example               # EmailJS VITE_* variable names + setup (no values)
+├── .env.local                 # gitignored (*.local) — real EmailJS values (local only)
 ├── ME.jpg                     # Unused duplicate of public/images/profile.jpg
 ├── .gitignore                 # node_modules, dist, dist-ssr, *.local, .DS_Store, *.log
 │
@@ -92,6 +95,9 @@ marcportfolio/
 │   │   │   ├── LearningJourney.jsx # 6 learning themes in a responsive grid (Phase 4)
 │   │   │   ├── BuildingInterests.jsx # Prose + project list from data/projects.js (Phase 4)
 │   │   │   └── Approach.jsx   # 4 numbered principles (Phase 4)
+│   │   ├── contact/
+│   │   │   ├── ContactInfo.jsx # Contact cards from data/socialLinks.js + phone/location (Phase 8)
+│   │   │   └── ContactForm.jsx # Accessible form + validation + EmailJS env config (Phase 8)
 │   │   └── ui/
 │   │       ├── Button.jsx     # Polymorphic Link/anchor/button
 │   │       ├── Card.jsx       # Motion-forwarding surface card
@@ -193,7 +199,11 @@ App (MotionConfig)
     │   ├── Resume    → Page, PageHeader, Button, data/skills, data/projects,
     │   │               data/socialLinks, animations; print scope via
     │   │               body[data-print-resume] + index.css @media print
-    │   ├── Contact   → Page, PageHeader, Button, formStyles, @emailjs/browser
+    │   ├── Contact   → Page, PageHeader, components/contact/ContactInfo
+    │   │               (data/socialLinks, lucide icons, animations) +
+    │   │               components/contact/ContactForm (Button, formStyles,
+    │   │               data/socialLinks, animations, @emailjs/browser,
+    │   │               import.meta.env VITE_EMAILJS_*)
     │   └── NotFound  → Page, Button
     ├── Footer        → SocialLinks, lucide ArrowUp (own scroll-to-top)
     ├── BackToTop     → framer-motion AnimatePresence (floating)
@@ -402,6 +412,60 @@ pages/Resume.jsx                 (single file — no new components)
 - **Animation:** PageHeader `fadeUp` + actions `fadeUp` on mount only; the
   document body is static (no `whileInView`) so nothing prints mid-reveal.
 
+**Contact page structure (Phase 8)**
+
+```text
+pages/Contact.jsx                 (thin composition — PageHeader + grid)
+├── ui/PageHeader                 h1 "Let's work together" + honest lead
+└── grid gap-6, items-start → 1 col → md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]
+    ├── components/contact/ContactInfo.jsx
+    │   ├── h2 "Contact information" + short lead
+    │   └── motion.ul (staggerContainer/viewportOnce) → 4 × motion.li cards
+    │       (staggerItem + y −2px whileHover):
+    │       ├── Email   ← data/socialLinks.js (mailto, no target)
+    │       ├── Phone   ← local verified tel: link
+    │       ├── Location← local verified static div
+    │       └── GitHub  ← data/socialLinks.js (target=_blank rel=noreferrer noopener)
+    └── components/contact/ContactForm.jsx
+        ├── h2 "Send me a message" + short lead
+        └── motion.form (noValidate, aria-busy, aria-labelledby, fadeUp)
+            ├── required-fields hint (asterisk aria-hidden + sr-only)
+            ├── Name (required) / Email (required) grid sm:2
+            ├── Subject (optional → template param "Portfolio inquiry")
+            ├── Message (required, textarea)
+            ├── persistent live region div (role="status", aria-live="polite",
+            │   tabindex=-1) — always mounted so changes are announced
+            └── Button submit (disabled + Loader2 spinner while sending)
+```
+
+- **Data:** contact cards derive Email + GitHub from `data/socialLinks.js`
+  (single source; `mailto` shows `handle`, http(s) shows the URL minus
+  protocol; a missing email entry omits the card); Phone/Location are the
+  verified local entries documented in `PROJECT_CONTEXT.md` §14. Fallback
+  email addresses in error messages come from the same data file.
+- **Validation:** exported `validateContactForm(values)` helper (no schema
+  library); per-field errors with `aria-invalid` + `aria-describedby`, red
+  border via `aria-invalid:border-danger` (in `formStyles.js` `fieldBase`),
+  focus to the first invalid field after commit; summary announced through
+  the persistent live region.
+- **Submission flow:** `isSending` guard (no duplicate submits) → disabled
+  button + `aria-busy` + sr-only pending message + focus moved to the status
+  region → success resets the form and shows the success status; failure
+  keeps all user input and shows an error status with a `mailto:` fallback.
+- **EmailJS (env-driven):** `import.meta.env.VITE_EMAILJS_SERVICE_ID`,
+  `VITE_EMAILJS_TEMPLATE_ID`, `VITE_EMAILJS_PUBLIC_KEY` (values in gitignored
+  `.env.local`; names documented in `.env.example`); `emailjs.send(service,
+  template, params, { publicKey })`. Missing values → `isEmailJsConfigured`
+  is false and submission shows an explicit not-configured error (no silent
+  failure, no fake success). Template params unchanged: `name`, `email`,
+  `title` (subject), `message`.
+- **Responsive:** mobile stacks (cards then form) at 1 col; `md` two-column
+  balance with the wider form column; card grid `auto-fit minmax(230px,1fr)`;
+  full-width submit below `sm`; `min-w-0` everywhere, no fixed widths.
+- **Animation:** PageHeader `fadeUp`; cards `staggerContainer`/`staggerItem`
+  `whileInView` once (+ documented y −2px hover lift on the `li`); form single
+  `fadeUp` `whileInView`. No loops; reduced motion via `MotionConfig` + CSS.
+
 ---
 
 ## 6. Styling Architecture
@@ -505,37 +569,65 @@ src/data/socialLinks.js
 
 **Local component data (not yet centralized):** `About` sections' `facts`
 (`about/Intro.jsx`), `journey` (`about/LearningJourney.jsx`), `principles`
-(`about/Approach.jsx`), `Navbar.navLinks`, `Contact.contactCards`, and
-Resume's two constants (`resumePdf`, `portfolioUrl` — its skills, projects,
-and contact links are imported from `data/` as of Phase 7). These are
+(`about/Approach.jsx`), `Navbar.navLinks`, `ContactInfo.contactCards`'
+phone + location entries (`contact/ContactInfo.jsx` — its Email/GitHub cards
+come from `data/socialLinks.js` as of Phase 8), and Resume's two constants
+(`resumePdf`, `portfolioUrl` — its skills, projects, and contact links are
+imported from `data/` as of Phase 7). These are
 page-specific content with no counterpart in `data/` (the old `Home.techTags`,
-`About.highlights`, and Resume's `technicalHighlights`/`focusAreas` were
-removed in Phases 3, 4, and 7).
+`About.highlights`, Resume's `technicalHighlights`/`focusAreas`, and the old
+`Contact.contactCards` Email/GitHub duplicates were
+removed in Phases 3, 4, 7, and 8).
 
 ---
 
 ## 10. Contact / Form Architecture
 
 ```text
-pages/Contact.jsx
-  state: formData { name, email, subject, message }, status, isSending
-  handleChange  → controlled inputs, clears status
-  handleSubmit  → preventDefault
-                  1. manual required-field check (name, email, message)
-                  2. regex email check
-                  3. subject defaults to 'Portfolio inquiry'
-                  4. emailjs.send(SERVICE_ID, TEMPLATE_ID, params, PUBLIC_KEY)
-                  5. success → reset form + success status
-                     failure → error status with fallback email address
-  UI: <motion.form noValidate> with labels, role="status" aria-live="polite"
+pages/Contact.jsx                  (composition only: PageHeader + grid)
+└── components/contact/ContactForm.jsx
+  state: formData { name, email, subject, message },
+         errors { name?, email?, message? }, status { type, message, srOnly? }, isSending
+  exported: validateContactForm(values), isEmailJsConfigured
+  handleChange  → updates the field, clears that field's error,
+                  clears a success status (error statuses persist)
+  handleSubmit  → preventDefault + isSending guard (no duplicate submits)
+                  1. validateContactForm() → per-field errors
+                     ├─ invalid: set errors + summary status,
+                     │           focus first invalid field (post-commit)
+                     └─ valid ↓
+                  2. !isEmailJsConfigured → explicit "not configured" error
+                     status with a mailto: fallback (no request attempted)
+                  3. isSending = true + sr-only pending status + focus status
+                  4. emailjs.send(VITE_SERVICE, VITE_TEMPLATE,
+                                  { name, email, title, message },
+                                  { publicKey: VITE_PUBLIC_KEY })
+                  5. success → reset form ONLY here + success status
+                     failure → error status with mailto: fallback
+                                (user input is preserved) + console.error
+                                (error object only — never form contents)
+  UI: <motion.form noValidate aria-busy={isSending} aria-labelledby=…>
+      visible <label> per field, required markers (aria-hidden * + sr-only),
+      per-field <p id="{id}-error"> wired with aria-invalid/aria-describedby,
+      persistent <div role="status" aria-live="polite" tabindex="-1"> live
+      region (mounts empty so every message change is announced),
+      submit Button disabled + Loader2 spinner while sending
 ```
 
-- Validation: manual, no schema library.
-- Delivery: EmailJS (client-side only; **configuration values are hardcoded in
-  `src/pages/Contact.jsx` (lines ~104-106)** — treat them as sensitive, do not
-  copy them into documentation, and consider moving them to Vite env vars
-  later).
-- Alternative contact paths: `mailto:` and `tel:` links in `contactCards`.
+- Validation: manual (custom `validateContactForm`), no schema library; native
+  `required`/`type=email` attributes retained for semantics while `noValidate`
+  keeps messages styled, focusable, and consistent.
+- Delivery: EmailJS client-side only; **configuration comes exclusively from
+  environment variables** `VITE_EMAILJS_SERVICE_ID`,
+  `VITE_EMAILJS_TEMPLATE_ID`, `VITE_EMAILJS_PUBLIC_KEY` (Phase 8 — the old
+  hardcoded values in `src/pages/Contact.jsx` were removed). Values live in
+  gitignored `.env.local` for local work; `.env.example` documents the names
+  and setup; the same variables must be added to Vercel project settings
+  before deploying (missing vars are detected at runtime and reported, never
+  silently treated as valid). The public key is a browser-side public value —
+  never put an EmailJS private key in this codebase or in documentation.
+- Alternative contact paths: `mailto:` / `tel:` links and the GitHub link in
+  `ContactInfo` (all from verified data).
 - No spam protection, no server, no persistence.
 
 ---
@@ -564,8 +656,11 @@ in `App.jsx`, plus a CSS `@media (prefers-reduced-motion: reduce)` override.
   staggers and BuildingInterests/closing `fadeUp`, all `whileInView` once.
 - Skills (Phase 5): intro `fadeUp` on mount; skill-group rows stagger
   `whileInView`; focus card + closing `fadeUp`, `whileInView` once.
-- Projects/Contact: content blocks use
-  `initial="hidden" whileInView="visible"`. Resume (Phase 7) uses
+- Projects: content blocks use
+  `initial="hidden" whileInView="visible"`. Contact (Phase 8): PageHeader
+  `fadeUp` on mount, contact cards `staggerContainer`/`staggerItem`
+  `whileInView` once, form a single `fadeUp` `whileInView` (no loops).
+  Resume (Phase 7) uses
   mount-time `fadeUp` on the header + actions only — its document body is
   static so nothing can be caught mid-reveal when printing.
 - Route change: `motion.main key={pathname}` — 0.25s fade.
@@ -594,7 +689,7 @@ in `App.jsx`, plus a CSS `@media (prefers-reduced-motion: reduce)` override.
 | Node requirement | Vite 7 wants ^20.19 or ≥22.12 — local machine has **v24.19.0** (satisfied) |
 | Git | repo `https://github.com/mxrckyyy/marcportfolio.git`, branch **master**, tracks `origin/master` (remote also has a `main` branch) |
 | `.gitignore` | `node_modules`, `dist`, `dist-ssr`, `*.local`, `.DS_Store`, `*.log` |
-| Environment variables | **None configured** — no `.env*` files in the repo, no `import.meta.env` usage |
+| Environment variables | `.env.example` (names/setup, no values) + gitignored `.env.local` hold `VITE_EMAILJS_SERVICE_ID`, `VITE_EMAILJS_TEMPLATE_ID`, `VITE_EMAILJS_PUBLIC_KEY`; **not yet configured in Vercel** — required before the next deploy |
 
 Do not change deployment settings without explicit instruction.
 
@@ -604,7 +699,7 @@ Do not change deployment settings without explicit instruction.
 
 | Service | Used by | Purpose |
 | --- | --- | --- |
-| EmailJS (`@emailjs/browser`) | `pages/Contact.jsx` | Sends the contact form to Marc's inbox (config hardcoded in source) |
+| EmailJS (`@emailjs/browser`) | `components/contact/ContactForm.jsx` | Sends the contact form to Marc's inbox (config via `VITE_EMAILJS_*` env vars since Phase 8) |
 | Vercel | hosting | Deployment + HTTPS + CDN |
 | GitHub | repo + Projects links | Source control, profile link |
 | lucide.dev icons (bundled) | all components | Icon set |
@@ -616,12 +711,26 @@ images removed in Phase 5 — Skills renders text chips).
 
 ## 14. Environment Variables
 
-- None exist. `.gitignore` covers `*.local` (Vite's `.env.local` pattern), but
-  no env files have been created.
-- If env vars are introduced later, use Vite's `import.meta.env.VITE_*`
-  convention and keep secrets out of the repository (note: anything shipped to
-  the browser is public by definition — EmailJS public keys belong on the
-  client, private keys do not).
+Introduced in Phase 8 (Vite `import.meta.env.VITE_*` convention):
+
+| Variable | Used by | Where the value lives |
+| --- | --- | --- |
+| `VITE_EMAILJS_SERVICE_ID` | `components/contact/ContactForm.jsx` | `.env.local` (gitignored) + Vercel project settings (pending) |
+| `VITE_EMAILJS_TEMPLATE_ID` | same | same |
+| `VITE_EMAILJS_PUBLIC_KEY` | same | same |
+
+- `.env.example` documents the three names and the setup steps — **no real
+  values are written there** (secrets/config stay out of the repository and
+  out of documentation).
+- `.env.local` is ignored by the pre-existing `*.local` rule in
+  `.gitignore`; it is required for local dev/build so the form is configured.
+- Deployment: add all three in Vercel → Project Settings → Environment
+  Variables, then redeploy. Until then the deployed form shows its explicit
+  "not configured" error with a `mailto:` fallback (missing vars are detected
+  via the exported `isEmailJsConfigured` flag, never silently ignored).
+- Anything shipped to the browser is public by definition — the EmailJS
+  **public** key belongs on the client; an EmailJS **private** key must never
+  be added here.
 
 ---
 
@@ -807,3 +916,47 @@ change complete:
   hierarchy, 7-page regression render), print CSS present in the built
   bundle, `vite preview` all 6 routes + `/MarcResume.pdf` → 200 ✓ (details
   in `PROJECT_CONTEXT.md` §16).
+
+### Phase 8 (Contact page redesign + EmailJS env config)
+
+- Rewrote `src/pages/Contact.jsx` as a thin composition of new
+  `src/components/contact/ContactInfo.jsx` (h2 + contact-card `<ul>` derived
+  from `data/socialLinks.js` for Email/GitHub plus the verified phone and
+  location entries, with `target="_blank"`/`rel="noreferrer noopener"` only on
+  the external GitHub link) and `src/components/contact/ContactForm.jsx`
+  (h2 + form card). New PageHeader copy: "Let's work together" with an honest
+  BSIT-student/aspiring-developer lead.
+- Form overhaul: visible labels + required markers (aria-hidden `*` with an
+  sr-only "an asterisk" hint line), optional subject, exported
+  `validateContactForm` helper, per-field errors wired with `aria-invalid` +
+  `aria-describedby`, focus to the first invalid field after commit, a
+  persistent `role="status"`/`aria-live="polite"`/`tabindex="-1"` live region
+  for pending/success/error messages, `aria-busy` on the form, disabled
+  submit + Loader2 spinner while sending (with focus moved to the status
+  region so keyboard focus is never dropped), success-only form reset,
+  input preservation on failure, duplicate-submit guard, and a `mailto:`
+  fallback in every error message.
+- EmailJS configuration moved out of source into
+  `VITE_EMAILJS_SERVICE_ID` / `VITE_EMAILJS_TEMPLATE_ID` /
+  `VITE_EMAILJS_PUBLIC_KEY` (issue #22): `.env.local` (gitignored via the
+  existing `*.local` rule) holds the real values locally, `.env.example`
+  documents the names/setup with no values, and missing variables surface as
+  an explicit not-configured error instead of a silent failure (issue #15 and
+  #22 both resolved).
+- `src/utils/formStyles.js`: `fieldBase` gained
+  `aria-invalid:border-danger` / `aria-invalid:focus:border-danger` (only the
+  Contact form uses these classes) so error fields get a red border without
+  losing the global focus ring.
+- No new dependencies; Navbar, Footer, routing, data files, résumé/PDF, and
+  all other pages untouched.
+- Validated: `npm run build` ✓ (2136 modules, CSS 33.99 kB / gzip 7.28 kB),
+  SSR smoke render **73/73 checks ✓** (Contact structure, contact data, link
+  safety, labels/required/autocomplete, live region, validation-helper unit
+  checks, 7-page regression, zero React warnings) + a **missing-env run
+  (72/72 ✓)** after temporarily moving `.env.local` aside (restored and
+  verified), built-bundle env-inlining + CSS order checks, and
+  `vite preview` direct loads of all 6 routes + an unknown route → 200 ✓
+  (details in `PROJECT_CONTEXT.md` §16). **Not tested:** a real EmailJS
+  delivery and any interactive/visual browser behavior (no browser
+  automation) — deferred to QA; **Vercel env vars still need to be added**
+  before the next deploy.

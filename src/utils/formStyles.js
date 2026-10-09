@@ -1,5 +1,5 @@
 const fieldBase =
-  'w-full rounded-sm border border-border bg-background px-3.5 py-2.5 text-[0.95rem] leading-normal text-foreground transition-[border-color,box-shadow] duration-200 placeholder:text-muted focus:border-primary focus:ring-[3px] focus:ring-primary-soft disabled:cursor-not-allowed disabled:opacity-60'
+  'w-full rounded-sm border border-border bg-background px-3.5 py-2.5 text-[0.95rem] leading-normal text-foreground transition-[border-color,box-shadow] duration-200 placeholder:text-muted focus:border-primary focus:ring-[3px] focus:ring-primary-soft aria-invalid:border-danger aria-invalid:focus:border-danger disabled:cursor-not-allowed disabled:opacity-60'
 
 export const labelClasses = 'text-sm font-semibold text-muted'
 
