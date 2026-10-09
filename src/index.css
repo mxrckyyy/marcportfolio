@@ -122,3 +122,54 @@
     }
   }
 }
+
+/* =========================================================
+   PRINT — scoped to the Resume page only.
+   Active only while <body data-print-resume> is set
+   (set/cleared by src/pages/Resume.jsx on mount/unmount),
+   so printing every other page is unchanged.
+   ========================================================= */
+@media print {
+  body[data-print-resume] {
+    background: #fff;
+  }
+
+  body[data-print-resume]
+    :is(header, footer, nav, button, a[href="#main-content"]):not(main *) {
+    display: none;
+  }
+
+  .resume-print {
+    color: #1f2328;
+  }
+
+  .resume-print .text-foreground,
+  .resume-print .text-foreground-strong {
+    color: #1f2328;
+  }
+
+  .resume-print .text-muted,
+  .resume-print .before\:text-muted::before {
+    color: #4b5563;
+  }
+
+  .resume-print .text-primary {
+    color: #1d4ed8;
+  }
+
+  .resume-print .border-border-subtle {
+    border-color: #d1d5db;
+  }
+
+  .resume-print .border-primary {
+    border-color: #2563eb;
+  }
+
+  .resume-print .decoration-border-strong {
+    text-decoration-color: #9ca3af;
+  }
+
+  .resume-print .resume-sheet {
+    background: #fff;
+  }
+}

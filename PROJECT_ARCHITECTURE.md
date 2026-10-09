@@ -74,7 +74,8 @@ marcportfolio/
 ├── src/
 │   ├── main.jsx               # createRoot().render(<StrictMode><App/>), imports index.css
 │   ├── App.jsx                # MotionConfig → BrowserRouter → Routes → Layout
-│   ├── index.css              # @import "tailwindcss" + @theme tokens + @layer base (124 lines)
+│   ├── index.css              # @import "tailwindcss" + @theme tokens + @layer base
+│   │                          # + @media print block scoped to Resume (175 lines)
 │   ├── assets/
 │   │   └── MarcResume.pdf     # Unused duplicate of public/MarcResume.pdf
 │   ├── components/
@@ -137,7 +138,7 @@ only through Vite `manualChunks` (§15).
 | `/about` | About | Intro + sections + closing CTA (§5) |
 | `/skills` | Skills | Skill groups + focus + CTA (§5) |
 | `/projects` | Projects | Preview-led cards + GitHub banner (§5) |
-| `/resume` | Resume | `/MarcResume.pdf` download/view |
+| `/resume` | Resume | Document-style on-page résumé + `/MarcResume.pdf` view/download; print styles scoped via `body[data-print-resume]` (§5) |
 | `/contact` | Contact | EmailJS form |
 | `*` | NotFound | Any unknown path → 404 |
 
@@ -189,7 +190,9 @@ App (MotionConfig)
     │   ├── Skills    → Page, PageHeader, Card, Chip, Button, data/skills,
     │   │               data/projects, animations
     │   ├── Projects  → Page, PageHeader, ProjectCard, Button, data/projects
-    │   ├── Resume    → Page, PageHeader, Button, Card, Chip, animations
+    │   ├── Resume    → Page, PageHeader, Button, data/skills, data/projects,
+    │   │               data/socialLinks, animations; print scope via
+    │   │               body[data-print-resume] + index.css @media print
     │   ├── Contact   → Page, PageHeader, Button, formStyles, @emailjs/browser
     │   └── NotFound  → Page, Button
     ├── Footer        → SocialLinks, lucide ArrowUp (own scroll-to-top)
@@ -358,12 +361,53 @@ pages/Projects.jsx               (header + grid + GitHub banner — thin)
 - **Screenshots:** none exist; the preview cover is the documented
   text-led fallback (upgrade path: real captures in a later phase).
 
+**Resume page structure (Phase 7)**
+
+```text
+pages/Resume.jsx                 (single file — no new components)
+├── Page (print:py-0)
+├── div.resume-print             print color-scope hook
+├── ui/PageHeader                h1 "My Resume" + lead referencing the PDF
+├── actions (fadeUp, print:hidden)
+│   ├── Button primary           View PDF → /MarcResume.pdf (target=_blank)
+│   └── Button secondary         Download Resume → download attribute
+│                                "JohnMarcComeros-Resume.pdf"
+└── div.resume-sheet             bg-surface document sheet
+    │                            (print:rounded-none print:border-0)
+    ├── identity                 name <p>, positioning, contact <ul>
+    ├── section Profile          h2 + suggested summary copy
+    ├── section Education        h2 + border-l-2 accent (verified strings)
+    ├── section Technical Skills h2 + <dl>/<dt>/<dd> from data/skills.js
+    │                            (JS note inline: "(basic knowledge, ...)")
+    └── section Selected Projects h2 + <article> per data/projects.js
+                                 (h3 title, demo/source text links,
+                                  description, mono technology list)
+```
+
+- **Data:** zero hardcoded content — `skillGroups` (6 groups / 13 skills),
+  both `projects`, and `socialLinks` (Email + GitHub) are imported; one
+  module-local `portfolioUrl` constant (documented URL). The old
+  `technicalHighlights`/`focusAreas` arrays are deleted (issue #5).
+- **PDF:** `/MarcResume.pdf` from `public/` (byte-identical unused duplicate
+  remains in `src/assets/`); Phase 7 did not modify the PDF and its text
+  contents were not machine-verified in-session.
+- **Print scoping:** `useEffect` sets `data-print-resume` on `<body>`
+  (cleared on unmount); `@media print` rules at the end of `index.css`
+  activate only for that attribute — white background, site chrome hidden
+  (`header/footer/nav/button` outside `<main>` + skip link), dark
+  print-safe color overrides for `.resume-print`, `.resume-sheet` background
+  reset. Other pages' print output is untouched.
+- **Heading hierarchy:** h1 → h2 per section → h3 per project; identity name
+  is a `<p>`; section titles reuse the mono `//` eyebrow pattern.
+- **Animation:** PageHeader `fadeUp` + actions `fadeUp` on mount only; the
+  document body is static (no `whileInView`) so nothing prints mid-reveal.
+
 ---
 
 ## 6. Styling Architecture
 
 **System:** Tailwind CSS v4 through the `@tailwindcss/vite` plugin. One global
-stylesheet, `src/index.css` (124 lines), imported once by `src/main.jsx`.
+stylesheet, `src/index.css` (175 lines), imported once by `src/main.jsx`.
 No `tailwind.config.js`, no Tailwind v3, no CSS preprocessors, no CSS
 frameworks besides Tailwind.
 
@@ -373,8 +417,10 @@ frameworks besides Tailwind.
 src/index.css
 ├── @import "tailwindcss"      # v4 engine (no config file — zero-config)
 ├── @theme { … }               # semantic design tokens → generate utilities
-└── @layer base                # html/body, ::selection, :focus-visible,
-                               # scrollbar (dark), prefers-reduced-motion
+├── @layer base                # html/body, ::selection, :focus-visible,
+│                              # scrollbar (dark), prefers-reduced-motion
+└── @media print               # scoped to Resume: active only while
+                               # body[data-print-resume] is set (Phase 7)
 ```
 
 **Authoritative design-token table:** `PROJECT_CONTEXT.md` §8 (colors, fonts,
@@ -385,9 +431,10 @@ hierarchy, component system).
 2xl 1536. No one-off breakpoints.
 
 **Custom CSS boundary:** allowed only for `@theme` tokens, `@layer base`
-element styles, scrollbar, selection, focus-visible, and reduced-motion
-overrides. Everything else is utilities in JSX (avoid `@apply` and inline
-styles for normal UI).
+element styles, scrollbar, selection, focus-visible, reduced-motion
+overrides, and the Resume-scoped `@media print` block (gated by
+`body[data-print-resume]`). Everything else is utilities in JSX (avoid
+`@apply` and inline styles for normal UI).
 
 **States:** transitions via Tailwind (`transition`, `duration-200`,
 `hover:`/`active:`/`focus-visible:`/`disabled:` variants); interactive borders
@@ -458,10 +505,12 @@ src/data/socialLinks.js
 
 **Local component data (not yet centralized):** `About` sections' `facts`
 (`about/Intro.jsx`), `journey` (`about/LearningJourney.jsx`), `principles`
-(`about/Approach.jsx`), `Navbar.navLinks`, `Resume.technicalHighlights`,
-`Resume.focusAreas`, `Contact.contactCards`. These are page-specific content
-with no counterpart in `data/` (the old `Home.techTags` and `About.highlights`
-were removed in Phases 3 and 4).
+(`about/Approach.jsx`), `Navbar.navLinks`, `Contact.contactCards`, and
+Resume's two constants (`resumePdf`, `portfolioUrl` — its skills, projects,
+and contact links are imported from `data/` as of Phase 7). These are
+page-specific content with no counterpart in `data/` (the old `Home.techTags`,
+`About.highlights`, and Resume's `technicalHighlights`/`focusAreas` were
+removed in Phases 3, 4, and 7).
 
 ---
 
@@ -515,8 +564,10 @@ in `App.jsx`, plus a CSS `@media (prefers-reduced-motion: reduce)` override.
   staggers and BuildingInterests/closing `fadeUp`, all `whileInView` once.
 - Skills (Phase 5): intro `fadeUp` on mount; skill-group rows stagger
   `whileInView`; focus card + closing `fadeUp`, `whileInView` once.
-- Pages (Projects/Resume/Contact): content blocks use
-  `initial="hidden" whileInView="visible"`.
+- Projects/Contact: content blocks use
+  `initial="hidden" whileInView="visible"`. Resume (Phase 7) uses
+  mount-time `fadeUp` on the header + actions only — its document body is
+  static so nothing can be caught mid-reveal when printing.
 - Route change: `motion.main key={pathname}` — 0.25s fade.
 - Hover lifts: `SocialLinks`/Contact card y −2px, `BackToTop` y −3px
   (`whileTap` 0.95); project cards use border-color hover only (lift
@@ -724,3 +775,35 @@ change complete:
   data-field verification, link safety, heading hierarchy, Home teaser
   regression, 7-page render), `vite preview` `/` `/projects` `/skills`
   `/about` → 200 ✓ (details in `PROJECT_CONTEXT.md` §16).
+
+### Phase 7 (Resume page UI/UX redesign)
+
+- Rewrote `src/pages/Resume.jsx` as a document-style on-page résumé (single
+  file, no new components): identity block (name, positioning, contact links
+  from `data/socialLinks.js` + one `portfolioUrl` constant), Profile summary,
+  Education (verified strings), Technical Skills as `<dl>` rows rendered from
+  `data/skills.js` (all 13 skills, JavaScript honesty note inline), and
+  Selected Projects rendered from `data/projects.js`. The hardcoded
+  `technicalHighlights`/`focusAreas` arrays were deleted (issue #5).
+- PDF actions: `View PDF` (primary, new tab) + `Download Resume` (secondary,
+  `download="JohnMarcComeros-Resume.pdf"`) → `/MarcResume.pdf`. The PDF file
+  itself is unchanged; its text contents were **not machine-verified** in
+  this session (no PDF extraction available) — the `src/assets/` duplicate
+  remains unused.
+- Print styles: `@media print` block appended to `src/index.css`, active only
+  while `pages/Resume.jsx` sets `data-print-resume` on `<body>` (removed on
+  unmount) — white page, site chrome hidden (header/footer/nav/buttons
+  outside `<main>` + skip link), dark print-safe color overrides scoped to
+  `.resume-print`/`.resume-sheet`. Printing other pages is unchanged.
+  In-page: actions `print:hidden`, headings `print:break-after-avoid`,
+  entries `print:break-inside-avoid`, `Page print:py-0`.
+- Heading hierarchy: h1 → h2 per section → h3 per project (identity is a
+  `<p>`). Animation reduced to header + actions `fadeUp` on mount; document
+  body static (no `whileInView`).
+- No new dependencies; data files, Navbar, Footer, routing, and all other
+  pages untouched.
+- Validated: `npm run build` ✓, SSR smoke render 72/72 checks ✓ (Resume
+  structure, both PDF links, all skills/projects/contact data, heading
+  hierarchy, 7-page regression render), print CSS present in the built
+  bundle, `vite preview` all 6 routes + `/MarcResume.pdf` → 200 ✓ (details
+  in `PROJECT_CONTEXT.md` §16).

@@ -207,13 +207,18 @@ the title).
 - **Phase 6 (Projects page UI/UX redesign): COMPLETE** — redesigned
   `ui/ProjectCard.jsx` (text-led preview covers) + new header copy on
   `pages/Projects.jsx`; `data/projects.js` unchanged (see §7).
-- **Not started** (later phases): page redesigns (Resume/Contact/Footer
-  polish), new portfolio sections, per-route SEO titles/
+- **Phase 7 (Resume page UI/UX redesign): COMPLETE** — document-style on-page
+  résumé in `pages/Resume.jsx` (identity/links, profile, education,
+  data-driven skills, selected projects) + View/Download PDF actions + a
+  print stylesheet scoped to this page only via `body[data-print-resume]`
+  (see §7).
+- **Not started** (later phases): page redesigns (Contact, Footer polish),
+  new portfolio sections, per-route SEO titles/
   meta, security audit, performance optimization, final QA.
 
 ---
 
-## 7. Current Architecture (post-Phase 4)
+## 7. Current Architecture (post-Phase 7)
 
 Multi-page SPA. Seven real routes served by React Router; shared Navbar/Footer
 via a layout route with `<Outlet />`.
@@ -224,7 +229,7 @@ via a layout route with `<Outlet />`.
 | `/about` | `About` | Intro + portrait + facts, learning journey, what I enjoy building, approach, closing CTA |
 | `/skills` | `Skills` | Intro, 6 categorized skill groups (text chips), learning focus, projects CTA |
 | `/projects` | `Projects` | Header + 2 preview-led project cards + GitHub banner (no filters — only 2 projects) |
-| `/resume` | `Resume` | Resume actions + education/tech/focus |
+| `/resume` | `Resume` | My Resume header + View/Download PDF actions + document-style sheet: identity/links, profile, education, skills (from `data/skills.js`), selected projects (from `data/projects.js`) |
 | `/contact` | `Contact` | Contact cards + EmailJS form |
 | `*` | `NotFound` | 404 with links home/to projects |
 
@@ -242,7 +247,7 @@ App (MotionConfig reducedMotion="user")
             └── BackToTop
 ```
 
-### File map (post-Phase 5)
+### File map (post-Phase 7)
 
 ```text
 src/
@@ -258,7 +263,8 @@ src/
 ├── utils/        animations.js, container.js, formStyles.js
 ├── App.jsx       (router config)
 ├── main.jsx      (unchanged)
-└── index.css     (Tailwind v4 import + @theme tokens + global base, 124 lines)
+└── index.css     (Tailwind v4 import + @theme tokens + global base + print
+                   block scoped to Resume via body[data-print-resume], 175 lines)
 vercel.json       (SPA rewrite: all routes → /index.html)
 ```
 
@@ -489,6 +495,64 @@ site's restrained language.
 
 ---
 
+### Resume Page (post-Phase 7)
+
+`pages/Resume.jsx` is a single file (no new components) styled as a
+professional document rather than a card wall. It is fully data-driven —
+no skill or project content is hardcoded:
+
+```text
+Page (print:py-0)
+└── div.resume-print            (print color-scope hook)
+    ├── PageHeader (eyebrow "Resume", h1 "My Resume", lead mentions the PDF)
+    ├── actions (fadeUp, print:hidden)
+    │   ├── View PDF (primary, target=_blank) → /MarcResume.pdf
+    │   └── Download Resume (secondary, download="JohnMarcComeros-Resume.pdf")
+    └── div.resume-sheet (bg-surface, print:rounded-none print:border-0)
+        ├── name (p) + positioning (mono, primary) + contact <ul>
+        │   (Email + GitHub from data/socialLinks.js + portfolio URL const)
+        ├── section Profile       (h2, suggested summary copy)
+        ├── section Education     (h2 + border-l-2 accent; verified strings)
+        ├── section Technical Skills (h2 + <dl>: one <dt> per group title,
+        │   one <dd> joined " · " from data/skills.js, JS note rendered
+        │   inline as "(basic knowledge, still learning)")
+        └── section Selected Projects (h2 + <article> per data/projects.js:
+            h3 title, Live demo/Source text links, description, mono techs)
+```
+
+**Data:** skills come from `skillGroups` in `data/skills.js` (all 13, all 6
+groups) and projects from `data/projects.js` (both entries) — the old
+hardcoded `technicalHighlights` and `focusAreas` arrays were deleted
+(issue #5, Resume half). Contact links derive from `data/socialLinks.js`
+plus one local `portfolioUrl` constant (`https://marcportfolio-seven.vercel.app`,
+documented in §1); nothing else is hardcoded.
+
+**PDF actions:** both buttons point to `/MarcResume.pdf` (the `public/` copy;
+`src/assets/MarcResume.pdf` remains an unused byte-identical duplicate).
+View opens the real PDF in a new tab; Download uses a sensible filename.
+The PDF file itself was NOT regenerated in Phase 7 and its text contents
+could not be machine-verified in this session (no PDF text extraction
+available) — treat its claims as not re-audited.
+
+**Print (scoped):** `Resume` sets `data-print-resume` on `<body>` in a
+`useEffect` (removed on unmount), activating a dedicated `@media print`
+block at the end of `src/index.css`: white page, site chrome hidden
+(`header/footer/nav/button` outside `<main>` + skip link), dark
+print-safe colors for `.resume-print` descendants, and `.resume-sheet`
+background reset. Printing any other page is unchanged — no attribute,
+no rules. In-page helpers: actions `print:hidden`, section headings
+`print:break-after-avoid`, education/projects `print:break-inside-avoid`.
+
+**Heading hierarchy:** h1 (PageHeader) → h2 per section → h3 per project
+title. The name/identity line is a `<p>` (not a heading). Section titles
+use the site's mono `//` eyebrow pattern in `text-primary`.
+
+**Animation:** PageHeader's built-in `fadeUp` + the actions row `fadeUp`
+on mount only. The document body is intentionally static (no
+`whileInView`), so nothing can be caught mid-animation when printing.
+
+---
+
 ## 8. Design System (Tailwind v4 `@theme` in `src/index.css`)
 
 ### Color tokens → utilities
@@ -648,7 +712,7 @@ additional projects.
 | --- | --- | --- | --- |
 | `public/images/profile.jpg` | 1536×2048 JPEG, 52 KB | Yes — Home hero avatar, `og:image`, `twitter:image` | Only photo in use |
 | `public/favicon.svg` | 64×64 SVG "JM" | Yes — `index.html` icon | Accent `#4f8cff` differs from site accent `#60a5fa` |
-| `public/MarcResume.pdf` | 92.5 KB | Yes — linked by Resume page | Served at `/MarcResume.pdf` |
+| `public/MarcResume.pdf` | 92.5 KB | Yes — View/Download actions on Resume page | Served at `/MarcResume.pdf`; file unchanged in Phase 7; **text contents not machine-verified** (no PDF extraction in session) |
 | `src/assets/MarcResume.pdf` | 92.5 KB | **No** | Byte-identical duplicate of the public copy; not imported anywhere |
 | `ME.jpg` (repo root) | 52 KB | **No** | Byte-identical duplicate of `public/images/profile.jpg`; tracked in git but unused |
 | `dist/` build output | generated | n/a | gitignored, regenerated by `npm run build` |
@@ -704,10 +768,12 @@ it into this file; it describes files that no longer exist.
    on the page.
 4. **Personal branding inconsistency** `[RESOLVED — Phase 2]` — Home hero now
    says "BSIT Student · Aspiring Web Developer" (was "Frontend Developer").
-5. **Inconsistent components** `[OPEN]` — two back-to-top controls (Footer
-   button + floating `BackToTop`); hardcoded skill-like lists remain in
-   `pages/Resume.jsx` (`technicalHighlights`, `focusAreas`) — drift risk vs
-   `data/skills.js`. (Home's hardcoded `techTags` was removed in Phase 3.)
+5. **Inconsistent components** `[PARTIALLY RESOLVED — Phase 7]` — two
+   back-to-top controls still exist (Footer button + floating `BackToTop`);
+   the hardcoded skill-like lists in `pages/Resume.jsx`
+   (`technicalHighlights`, `focusAreas`) were removed in Phase 7 — the
+   résumé now renders `data/skills.js` and `data/projects.js` directly.
+   (Home's hardcoded `techTags` was removed in Phase 3.)
 6. **Dead UI data — SocialLinks iconMap** `[RESOLVED — Phase 2]` —
    Linkedin/Facebook/Globe entries removed (they were unused). Note:
    `data/socialLinks.js` still only has Email + GitHub — no LinkedIn link at
@@ -774,8 +840,9 @@ it into this file; it describes files that no longer exist.
 
 22. **Hardcoded EmailJS configuration** `[OPEN]` —
     `src/pages/Contact.jsx:104-106` instead of environment variables.
-23. **Single 1540-line `index.css`** `[RESOLVED — Phase 2]` — now 124 lines
-    (`@import "tailwindcss"` + `@theme` tokens + `@layer base`); component
+23. **Single 1540-line `index.css`** `[RESOLVED — Phase 2]` — now 175 lines
+    (`@import "tailwindcss"` + `@theme` tokens + `@layer base` + a
+    Resume-scoped `@media print` block, Phase 7); component
     styles live in JSX utilities.
 24. **Duplicated files in the repo** `[OPEN]` — `ME.jpg`,
     `src/assets/MarcResume.pdf`.
@@ -920,3 +987,32 @@ it into this file; it describes files that no longer exist.
 - Not performed: real-browser visual checks, external-link click-through
   verification, and a live keyboard pass (no browser automation in this
   environment) — deferred to QA phase.
+
+### End of Phase 7 (Resume page)
+
+- `npm run build` ✓ (2134 modules; CSS 33.50 kB / gzip 7.13 kB; no warnings).
+- SSR smoke render (Vite `ssrLoadModule` + native `react`/`react-dom/server`/
+  `react-router-dom` imports, throwaway script): **72/72 checks ✓** —
+  Resume: single `h1` = "My Resume"; heading sequence 1→2→3 with no skips
+  (h2 sections → h3 project titles); both `/MarcResume.pdf` links (View with
+  `target="_blank"`, Download with `download="JohnMarcComeros-Resume.pdf"`);
+  identity/contact links (verified email, GitHub, portfolio URL); all 13
+  skills + all 6 group titles from `data/skills.js` with the JavaScript
+  honesty note rendered inline; education strings; both projects with demo +
+  GitHub URLs and technology tags from `data/projects.js`; `<dl>/<dt>/<dd>`
+  skills semantics; `resume-print`/`resume-sheet`/`print:hidden` class hooks;
+  no percentages, no star ratings, no leftover `technicalHighlights`/
+  `focusAreas` copy, no `<button>`, no `href="#"`, no `undefined`.
+  Regression: all other pages render clean with single h1s and no heading
+  skips.
+- Print CSS verified present in the built bundle (`body[data-print-resume]`,
+  `.resume-print` color overrides, `@media print`) ✓.
+- `vite preview` direct loads `/`, `/about`, `/projects`, `/skills`,
+  `/resume`, `/contact`, `/MarcResume.pdf` → 200 ✓.
+- PDF audit: existence (92,503 bytes), serving path (`/MarcResume.pdf`), and
+  all references verified; `src/assets/MarcResume.pdf` confirmed still an
+  unused duplicate. **PDF text contents NOT verified** — no PDF text
+  extraction available in this session; do not claim content parity.
+- Not performed: real-browser visual check of the document layout, an
+  actual Ctrl+P print preview (page count/color), and a keyboard-focus pass
+  (no browser automation in this environment) — deferred to QA phase.
