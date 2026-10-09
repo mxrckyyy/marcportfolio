@@ -204,8 +204,11 @@ the title).
   in `src/components/about/` (see §7).
 - **Phase 5 (Skills page UI/UX redesign): COMPLETE** — categorized text-chip
   skill groups in `data/skills.js` + redesigned `pages/Skills.jsx` (see §7).
-- **Not started** (later phases): page redesigns (Projects/Resume/Contact/
-  Footer polish), new portfolio sections, per-route SEO titles/
+- **Phase 6 (Projects page UI/UX redesign): COMPLETE** — redesigned
+  `ui/ProjectCard.jsx` (text-led preview covers) + new header copy on
+  `pages/Projects.jsx`; `data/projects.js` unchanged (see §7).
+- **Not started** (later phases): page redesigns (Resume/Contact/Footer
+  polish), new portfolio sections, per-route SEO titles/
   meta, security audit, performance optimization, final QA.
 
 ---
@@ -220,7 +223,7 @@ via a layout route with `<Outlet />`.
 | `/` | `Home` | Hero (identity, positioning, value prop, CTAs) + Selected Work teaser |
 | `/about` | `About` | Intro + portrait + facts, learning journey, what I enjoy building, approach, closing CTA |
 | `/skills` | `Skills` | Intro, 6 categorized skill groups (text chips), learning focus, projects CTA |
-| `/projects` | `Projects` | Project cards + GitHub banner |
+| `/projects` | `Projects` | Header + 2 preview-led project cards + GitHub banner (no filters — only 2 projects) |
 | `/resume` | `Resume` | Resume actions + education/tech/focus |
 | `/contact` | `Contact` | Contact cards + EmailJS form |
 | `*` | `NotFound` | 404 with links home/to projects |
@@ -428,6 +431,62 @@ below 430px (`min-[430px]:flex-row`); `min-w-0` everywhere, no fixed widths.
 animated individually); focus card + closing section = single `fadeUp`
 reveals. No loops; reduced motion via `MotionConfig` + global CSS.
 
+### Projects Page (post-Phase 6)
+
+`pages/Projects.jsx` remains thin; the showcase lives in the improved
+`ui/ProjectCard.jsx` (data-driven — adding a project only requires a new
+entry in `data/projects.js`):
+
+```text
+Page
+├── PageHeader (eyebrow "// Projects", h1 "Things I've built", lead copy)
+├── grid (staggerGrid + viewportOnce): 1 col → md:grid-cols-2
+│   └── ProjectCard (staggerCard, equal treatment for every project)
+│       ├── preview cover: aspect-[16/9], bg-surface-elevated,
+│       │   mono category (primary) + h2 project title — text-led
+│       │   fallback because no screenshots exist
+│       ├── description (verified data)
+│       ├── "Key features" <ul> (Check icons, from data.features[])
+│       ├── "Technologies used" <ul> mono tags (mt-auto → bottom-aligned;
+│       │   styling matches Home SelectedWork chips)
+│       └── actions: Live Demo (primary) when demo exists;
+│           View Code (secondary, primary if no demo) when github exists
+└── GitHub banner (existing copy + Button href={githubProfile})
+```
+
+**Data:** `data/projects.js` was NOT modified in Phase 6 — schema, both
+projects, features, technologies, demo/github URLs, and `featured` flags are
+unchanged, so the Home teasers are untouched. `featured` remains in the
+schema but is no longer rendered as a star badge: both projects are
+`featured: true`, so cards are treated equally (no ranking invented per the
+Phase 6 brief).
+
+**Link safety:** all card actions are `Button href` → external `<a>` with
+`target="_blank"` + `rel="noreferrer noopener"` (set by `Button`). Missing
+`demo`/`github` values simply omit that button; if no demo exists, GitHub
+becomes the primary action (logic implemented, currently both exist).
+
+**No filtering:** the collection is 2 projects, both `type: 'web'` — no
+reliable category split exists, so per the Phase 6 brief no filter UI was
+added (a filter would be decorative complexity; revisit only if the
+collection grows).
+
+**Heading hierarchy:** h1 (PageHeader) → h2 per project title (rendered
+inside the preview cover); no h3. Check icons decorative; both lists carry
+`aria-label`s ("Key features" / "Technologies used"); no clickable `div`s
+(only real links).
+
+**Responsive:** single column below `md`, 2 columns from `md` (gap-5/6);
+preview fixed at `aspect-[16/9]` (no distortion, no images); titles
+`text-balance` + clamp; tech tags `flex-wrap`; action buttons wrap; cards
+`h-full` + `flex-1`/`mt-auto` keep bodies and actions aligned across
+unequal feature counts.
+
+**Animation:** grid `staggerGrid` + card `staggerCard` on `whileInView`
+(unchanged pattern); the previous `whileHover` y−4 lift was removed —
+hover feedback is now `hover:border-primary` color only, matching the
+site's restrained language.
+
 ---
 
 ## 8. Design System (Tailwind v4 `@theme` in `src/index.css`)
@@ -572,6 +631,12 @@ Important features:
 **Schema required by `ProjectCard`:**
 `id, title, category, type, description, technologies[], features[], demo, github, featured`
 
+Notes (Phase 6): `featured` is retained in the schema but no longer rendered
+(both projects are featured → equal cards, no ranking); `type` is currently
+unused by the UI (both are `'web'`); `demo`/`github` are optional in the
+component — missing values omit that action button rather than rendering an
+empty link.
+
 No other projects are referenced anywhere in the codebase. Do not invent
 additional projects.
 
@@ -598,8 +663,10 @@ optimization:
   in a later phase).
 - `profile.jpg` is served at full 1536×2048 with no responsive variants
   (candidate for resizing/WebP).
-- No screenshots exist for the two showcased projects (must be captured/added
-  before a visual redesign of the Projects section).
+- No screenshots exist for the two showcased projects — the Projects page
+  (Phase 6) uses a designed text-led preview cover (category + title) as the
+  documented fallback; capture real screenshots to upgrade the covers in a
+  later phase.
 
 **External assets (not in repo):**
 
@@ -628,9 +695,10 @@ it into this file; it describes files that no longer exist.
 1. **Weak visual hierarchy in Hero** `[RESOLVED — Phase 3]` — Hero redesigned:
    one dominant `h1` with strict eyebrow → name → positioning → value prop →
    CTA hierarchy; glow pill, tech-tag chips, and equal-weight CTAs removed.
-2. **Weak project presentation** `[OPEN]` — no screenshots, no visual
-   differentiation between the two cards; the strongest content of the site is
-   the least visual.
+2. **Weak project presentation** `[PARTIALLY RESOLVED — Phase 6]` — cards
+   redesigned with a 16:9 text-led preview cover, verified feature list,
+   tech tags, and safe demo/GitHub actions; **screenshots still missing** —
+   real captures are needed to upgrade the covers (owner task, later phase).
 3. **Badge-heavy Skills page** `[RESOLVED — Phase 5]` — badges replaced by
    categorized text chips driven by `data/skills.js`; no remote images remain
    on the page.
@@ -832,3 +900,23 @@ it into this file; it describes files that no longer exist.
 - Not performed: real-browser visual checks at target viewport widths and a
   live keyboard-focus pass (no browser automation in this environment) —
   deferred to QA phase.
+
+### End of Phase 6 (Projects page)
+
+- `npm run build` ✓ (2134 modules; CSS 30.79 kB / gzip 6.64 kB; no warnings).
+- SSR smoke render (Vite `ssrLoadModule` + `MemoryRouter`, throwaway script):
+  **61/61 checks ✓** — Projects: single `h1` = "Things I've built"; heading
+  sequence 1→2 with no skips (project titles are the h2s); every data field
+  verified against `data/projects.js` (titles, categories, descriptions, all
+  technology tags, feature bullets, both demo URLs, both GitHub URLs); 2
+  `<article>` cards = 2 data entries; `target="_blank"` +
+  `rel="noreferrer noopener"` on external actions; no `href="#"`, no empty
+  `href`, no filter `<button>`s, no `<img>` (no screenshot claimed), no
+  `role="status"`, no `undefined`; no testimonial/award/rating copy. Home
+  regression: teasers still render both projects + tech chips + link to
+  `/projects`; About/Skills/Resume/Contact/NotFound all render clean.
+- `vite preview` direct loads `/`, `/projects`, `/skills`, `/about` → 200 +
+  SPA shell ✓.
+- Not performed: real-browser visual checks, external-link click-through
+  verification, and a live keyboard pass (no browser automation in this
+  environment) — deferred to QA phase.

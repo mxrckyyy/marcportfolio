@@ -136,7 +136,7 @@ only through Vite `manualChunks` (§15).
 | `/` (index) | Home | Hero only; `end` on its NavLink |
 | `/about` | About | Intro + sections + closing CTA (§5) |
 | `/skills` | Skills | Skill groups + focus + CTA (§5) |
-| `/projects` | Projects | |
+| `/projects` | Projects | Preview-led cards + GitHub banner (§5) |
 | `/resume` | Resume | `/MarcResume.pdf` download/view |
 | `/contact` | Contact | EmailJS form |
 | `*` | NotFound | Any unknown path → 404 |
@@ -205,7 +205,7 @@ App (MotionConfig)
 | `Card({ children, hover, className, ...rest })` | Motion-forwarding surface card; optional hover border. |
 | `Chip({ children, hover, className })` | Pill for tags/skills. |
 | `PageHeader({ eyebrow, title, description, align='left' })` | `motion.header` with `fadeUp` entrance; the page's single `h1`. |
-| `ProjectCard({ project })` | Data-driven card; expects the project schema documented in `PROJECT_CONTEXT.md` §11. |
+| `ProjectCard({ project })` | Data-driven card; schema in `PROJECT_CONTEXT.md` §11. Structure: 16:9 text-led preview cover (mono category + h2 title — screenshot fallback) → description → "Key features" list → "Technologies used" tags → conditional actions (`Live Demo` primary when `demo` exists; `View Code` secondary, or primary when no demo). Equal treatment for all projects (`featured` no longer rendered); hover = border color only. |
 | `SocialLinks({ variant='default' \| 'compact' })` | Maps `data/socialLinks.js` (Email, GitHub). |
 | `Page({ children, className })` | Page shell: `py-12 sm:py-14 md:py-20` + container. |
 | `BackToTop()` | Floating button, visible after `scrollY > 0.8 × innerHeight`. |
@@ -321,6 +321,42 @@ pages/Skills.jsx                 (single file — no sub-components)
 - **Responsive:** rows stack on mobile → `md:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]`;
   chips `flex-wrap`; focus grid 1→2 at `sm`; closing CTAs stack below 430px;
   `min-w-0` everywhere, no fixed widths.
+
+**Projects page structure (Phase 6)**
+
+```text
+pages/Projects.jsx               (header + grid + GitHub banner — thin)
+├── ui/PageHeader                (h1 "Things I've built" + lead)
+├── grid (staggerGrid, viewportOnce): 1 col → md:grid-cols-2, gap-5/6
+│   └── ui/ProjectCard × N       (staggerCard — fully data-driven)
+│       ├── preview cover        aspect-[16/9] bg-surface-elevated:
+│       │                        mono category (primary) + h2 title
+│       ├── description          data.description
+│       ├── "Key features" ul    data.features[] (Check icons, aria-hidden)
+│       ├── "Technologies used"  data.technologies[] mono tags (mt-auto)
+│       └── actions              demo → primary "Live Demo";
+│                                github → "View Code" (secondary, primary
+│                                if no demo); rendered only when present
+└── GitHub banner                Button href={githubProfile} (external)
+```
+
+- **Data:** `data/projects.js` unchanged in Phase 6 — schema, URLs, and
+  `featured` flags intact, so `components/home/SelectedWork.jsx` (Home
+  teasers) is untouched. `featured` is retained in data but not rendered
+  (both projects featured → equal cards).
+- **Link safety:** `Button` `href` gives every external action
+  `target="_blank"` + `rel="noreferrer noopener"`; missing `demo`/`github`
+  omits the button (no empty/fake links).
+- **No filter:** 2 projects, both `type: 'web'` — no meaningful category
+  split, so no filter UI (per Phase 6 brief; revisit if the collection
+  grows).
+- **Heading hierarchy:** h1 → h2 per project (inside the preview cover);
+  list `aria-label`s on features/technologies; decorative icons
+  `aria-hidden`; no clickable `div`s.
+- **Animation:** grid/card entrance variants unchanged; the card's
+  `whileHover` y−4 lift was removed — hover is `hover:border-primary` only.
+- **Screenshots:** none exist; the preview cover is the documented
+  text-led fallback (upgrade path: real captures in a later phase).
 
 ---
 
@@ -482,7 +518,9 @@ in `App.jsx`, plus a CSS `@media (prefers-reduced-motion: reduce)` override.
 - Pages (Projects/Resume/Contact): content blocks use
   `initial="hidden" whileInView="visible"`.
 - Route change: `motion.main key={pathname}` — 0.25s fade.
-- Cards/social links: `whileHover` y −2/−4px; `BackToTop` `whileTap` 0.95.
+- Hover lifts: `SocialLinks`/Contact card y −2px, `BackToTop` y −3px
+  (`whileTap` 0.95); project cards use border-color hover only (lift
+  removed in Phase 6).
 - Buttons/Chips: CSS-only hover scale/translate (no motion).
 - `BackToTop`: `AnimatePresence` mount/unmount.
 - CSS-only animation: `--animate-bounce-soft` keyframes — token declared but
@@ -668,3 +706,21 @@ change complete:
   structure, honesty absences, CTA links, heading hierarchy, 7-page
   regression render), `vite preview` `/` `/about` `/skills` `/projects` →
   200 ✓ (details in `PROJECT_CONTEXT.md` §16).
+
+### Phase 6 (Projects page UI/UX redesign)
+
+- Redesigned `ui/ProjectCard.jsx` in place (no new components): 16:9
+  text-led preview cover (mono category + h2 title — the documented
+  screenshot fallback), verified description + feature list, tech tags
+  aligned with Home's SelectedWork style, and conditional actions
+  (`Live Demo` primary; `View Code` secondary, primary if no demo).
+  Removed the per-card "Featured" star and the `whileHover` y−4 lift —
+  both projects are `featured: true`, so cards render equally.
+- `pages/Projects.jsx`: header copy → "Things I've built" + honest lead;
+  grid logic kept (1 col → `md:grid-cols-2`); GitHub banner kept.
+- `data/projects.js` **unchanged** — Home teasers unaffected. No filters
+  (2 projects, both web). No new dependencies.
+- Validated: `npm run build` ✓, SSR smoke render 61/61 checks ✓ (full
+  data-field verification, link safety, heading hierarchy, Home teaser
+  regression, 7-page render), `vite preview` `/` `/projects` `/skills`
+  `/about` → 200 ✓ (details in `PROJECT_CONTEXT.md` §16).

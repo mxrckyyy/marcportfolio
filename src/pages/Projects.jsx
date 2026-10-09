@@ -9,16 +9,16 @@ import { viewportOnce, staggerGrid, fadeUp } from '../utils/animations'
 
 const gridClasses =
   projects.length === 1
-    ? 'mx-auto grid max-w-[44rem] grid-cols-1 gap-5'
-    : 'grid grid-cols-1 gap-5 md:grid-cols-2'
+    ? 'mx-auto grid max-w-[48rem] grid-cols-1 gap-5'
+    : 'grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6'
 
 function Projects() {
   return (
     <Page>
       <PageHeader
         eyebrow="Projects"
-        title="Featured Projects"
-        description="Practical Applications Built with Modern Web Tech & Databases"
+        title="Things I've built"
+        description="A collection of projects I've worked on while learning web development, exploring new technologies, and building practical applications."
       />
 
       <motion.div

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Github, ExternalLink, Star, Check } from 'lucide-react'
+import { Github, ExternalLink, Check } from 'lucide-react'
 import Button from './Button'
 import { staggerCard } from '../../utils/animations'
 
@@ -12,51 +12,42 @@ function ProjectCard({ project }) {
     features = [],
     github,
     demo,
-    featured,
   } = project
-
-  const cardClasses = featured
-    ? 'flex flex-col gap-5 rounded-lg border border-primary/[0.35] bg-[linear-gradient(180deg,rgba(96,165,250,0.12),transparent_45%)] bg-surface p-[clamp(1.5rem,4vw,2.25rem)] transition-colors duration-200 hover:border-primary'
-    : 'flex flex-col gap-5 rounded-lg border border-border-subtle bg-surface p-6 transition-colors duration-200 hover:border-primary'
-
-  const titleClasses = featured
-    ? 'text-[clamp(1.3rem,3vw,1.6rem)] font-bold tracking-[-0.01em] text-foreground'
-    : 'text-lg font-bold tracking-[-0.01em] text-foreground'
-
-  const descriptionClasses = featured
-    ? 'mt-2 text-base leading-relaxed text-muted'
-    : 'mt-2 text-[0.95rem] leading-relaxed text-muted'
 
   return (
     <motion.article
-      className={cardClasses}
+      className="flex h-full flex-col overflow-hidden rounded-lg border border-border-subtle bg-surface transition-colors duration-200 hover:border-primary"
       variants={staggerCard}
-      whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="rounded-full border border-border-subtle bg-surface-elevated px-2.5 py-1 font-mono text-xs uppercase tracking-[0.04em] text-muted">
+      <div className="flex aspect-[16/9] flex-col justify-between gap-4 border-b border-border-subtle bg-surface-elevated p-5 sm:p-6">
+        <p className="min-w-0 font-mono text-xs font-medium uppercase tracking-[0.08em] text-primary">
           {category}
-        </span>
-        {featured && (
-          <span className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary">
-            <Star size={12} className="fill-current" aria-hidden="true" />{' '}
-            Featured
-          </span>
-        )}
+        </p>
+        <h2 className="min-w-0 text-balance text-[clamp(1.25rem,2.6vw,1.6rem)] font-bold leading-tight tracking-[-0.01em] text-foreground">
+          {title}
+        </h2>
       </div>
 
-      <div className="flex flex-col">
-        <h2 className={titleClasses}>{title}</h2>
-        <p className={descriptionClasses}>{description}</p>
+      <div className="flex flex-1 flex-col gap-4 p-5 sm:p-6">
+        <p className="text-[0.95rem] leading-relaxed text-muted">
+          {description}
+        </p>
 
         {features.length > 0 && (
-          <ul className="mt-4 flex flex-col gap-[0.45rem]">
+          <ul
+            className="flex flex-col gap-2"
+            aria-label="Key features"
+          >
             {features.map((feature) => (
               <li
                 key={feature}
                 className="flex items-start gap-2 text-sm leading-[1.45] text-muted"
               >
-                <Check size={14} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+                <Check
+                  size={14}
+                  className="mt-0.5 shrink-0 text-primary"
+                  aria-hidden="true"
+                />
                 <span>{feature}</span>
               </li>
             ))}
@@ -65,32 +56,36 @@ function ProjectCard({ project }) {
 
         {technologies.length > 0 && (
           <ul
-            className="mt-[1.15rem] flex flex-wrap gap-1.5"
+            className="mt-auto flex flex-wrap gap-1.5 pt-1"
             aria-label="Technologies used"
           >
             {technologies.map((tech) => (
               <li
                 key={tech}
-                className="rounded-sm border border-border-subtle bg-surface-elevated px-2.5 py-1 font-mono text-xs text-muted"
+                className="rounded-sm border border-border-subtle bg-surface-elevated px-2 py-0.5 text-xs text-muted"
               >
-                [{tech}]
+                {tech}
               </li>
             ))}
           </ul>
         )}
-      </div>
 
-      <div className="mt-auto flex flex-wrap gap-2.5">
-        {github && (
-          <Button href={github} variant="secondary" size="sm">
-            <Github size={16} aria-hidden="true" /> View Code
-          </Button>
-        )}
-        {demo && (
-          <Button href={demo} variant="secondary" size="sm">
-            <ExternalLink size={16} aria-hidden="true" /> Live Demo
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2.5">
+          {demo && (
+            <Button href={demo} variant="primary" size="sm">
+              <ExternalLink size={16} aria-hidden="true" /> Live Demo
+            </Button>
+          )}
+          {github && (
+            <Button
+              href={github}
+              variant={demo ? 'secondary' : 'primary'}
+              size="sm"
+            >
+              <Github size={16} aria-hidden="true" /> View Code
+            </Button>
+          )}
+        </div>
       </div>
     </motion.article>
   )
