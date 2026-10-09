@@ -33,7 +33,7 @@ function SelectedWork() {
         </motion.div>
 
         <motion.ul
-          className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5"
+          className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3"
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}

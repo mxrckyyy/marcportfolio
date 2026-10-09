@@ -43,6 +43,32 @@ export const projects = [
     github: 'https://github.com/mxrckyyy/InventorySystem',
     featured: true,
   },
+  {
+    id: 'fastrev',
+    title: 'FastRev',
+    category: 'Full-Stack AI Flashcard App',
+    type: 'web',
+    description:
+      'A free spaced-repetition flashcard app for students — paste or import study material (PDF, images, documents, or text), turn it into flashcards with AI, and review daily with FSRS scheduling and progress analytics.',
+    technologies: [
+      'React',
+      'Vite',
+      'Tailwind CSS',
+      'Supabase',
+      'ts-fsrs',
+      'Recharts',
+      'Vercel',
+    ],
+    features: [
+      'AI flashcard generation from pasted notes and imported files (PDF, images, .docx, text)',
+      'FSRS spaced-repetition reviews rated Again / Hard / Good / Easy',
+      'Deck organization with Supabase Auth and per-user data protected by Row Level Security',
+      'Progress analytics — retention rate, streaks, due forecasts, and review charts',
+    ],
+    demo: 'https://fast-rev-chi.vercel.app',
+    github: 'https://github.com/mxrckyyy/FastRev',
+    featured: true,
+  },
 ]
 
 export default projects

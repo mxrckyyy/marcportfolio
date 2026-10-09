@@ -149,7 +149,7 @@ function Skills() {
         </h2>
         <p className="mt-3 max-w-[640px] text-[1.05rem] leading-relaxed text-muted">
           The clearest way to judge them is in what I&apos;ve actually built so
-          far: {projectTitles}. Both are live if you&apos;d like to dig in.
+          far: {projectTitles}. All are live if you&apos;d like to dig in.
         </p>
         <div className="mt-6 flex flex-col gap-3 min-[430px]:flex-row min-[430px]:flex-wrap sm:gap-4">
           <Button to="/projects" variant="primary" size="lg">

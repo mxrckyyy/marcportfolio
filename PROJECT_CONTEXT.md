@@ -227,6 +227,12 @@ the title).
   never-loaded "Fira Code" removed from `--font-mono`, and the two verified
   unused duplicate files deleted (`ME.jpg`, `src/assets/MarcResume.pdf`) —
   details in §16.
+- **Data addition — FastRev (not a numbered phase): COMPLETE** — third
+  project record added to `src/data/projects.js` (verified against the live
+  site, the repo `package.json`, and the repo README); Selected Work grid
+  gained `lg:grid-cols-3` for desktop balance; Skills closing copy "Both are
+  live" → "All are live" (issue #28 resolved). No components, routes,
+  dependencies, or design tokens changed (see §11 and §16).
 - **Not started** (later phases): Footer polish, new portfolio sections,
   per-route SEO titles/meta, security audit, performance optimization,
   final QA. **Configuration task (not a phase):** the three EmailJS env vars
@@ -244,7 +250,7 @@ via a layout route with `<Outlet />`.
 | `/` | `Home` | Hero (identity, positioning, value prop, CTAs) + Selected Work teaser |
 | `/about` | `About` | Intro + portrait + facts, learning journey, what I enjoy building, approach, closing CTA |
 | `/skills` | `Skills` | Intro, 6 categorized skill groups (text chips), learning focus, projects CTA |
-| `/projects` | `Projects` | Header + 2 preview-led project cards + GitHub banner (no filters — only 2 projects) |
+| `/projects` | `Projects` | Header + 3 preview-led project cards + GitHub banner (no filters — 3 projects, all `type: 'web'`) |
 | `/resume` | `Resume` | My Resume header + View/Download PDF actions + document-style sheet: identity/links, profile, education, skills (from `data/skills.js`), selected projects (from `data/projects.js`) |
 | `/contact` | `Contact` | Contact information cards (from `data/socialLinks.js` + phone/location) + EmailJS contact form (env-configured) |
 | `*` | `NotFound` | 404 with links home/to projects |
@@ -360,10 +366,13 @@ pulse, and bounce arrow were removed. Selected Work uses
 reducedMotion="user"` + global CSS.
 
 **Selected Work:** header (eyebrow + `h2` "Things I've built" + secondary
-Button → `/projects`) and 2 cards from `data/projects.js` — the whole card is
+Button → `/projects`) and 3 cards from `data/projects.js` — the whole card is
 a single router `Link` to `/projects` (category, `h3` title, full description,
 tech chips, "View project →" hint). Deliberately no demo/GitHub buttons or
-feature checklists — those live on `/projects` (no duplication).
+feature checklists — those live on `/projects` (no duplication). The grid is
+`1 col → sm:grid-cols-2 → lg:grid-cols-3` — the `lg:grid-cols-3` step was
+added when FastRev became the third project so all teasers fit one complete
+row on desktop (sm/md show 2 + 1, which wraps cleanly).
 
 **Accessibility:** heading order h1 (Hero) → h2 (Selected Work) → h3 (project
 titles); no `role="status"` anywhere on Home; availability caption is real
@@ -488,21 +497,22 @@ Page
 ```
 
 **Data:** `data/projects.js` was NOT modified in Phase 6 — schema, both
-projects, features, technologies, demo/github URLs, and `featured` flags are
-unchanged, so the Home teasers are untouched. `featured` remains in the
-schema but is no longer rendered as a star badge: both projects are
+projects, features, technologies, demo/github URLs, and `featured` flags were
+unchanged at that time, so the Home teasers were untouched (FastRev was added
+later as a data-only change — see §11). `featured` remains in
+the schema but is no longer rendered as a star badge: all projects are
 `featured: true`, so cards are treated equally (no ranking invented per the
 Phase 6 brief).
 
 **Link safety:** all card actions are `Button href` → external `<a>` with
 `target="_blank"` + `rel="noreferrer noopener"` (set by `Button`). Missing
 `demo`/`github` values simply omit that button; if no demo exists, GitHub
-becomes the primary action (logic implemented, currently both exist).
+becomes the primary action (logic implemented; all three projects have both).
 
-**No filtering:** the collection is 2 projects, both `type: 'web'` — no
+**No filtering:** the collection is 3 projects, all `type: 'web'` — no
 reliable category split exists, so per the Phase 6 brief no filter UI was
-added (a filter would be decorative complexity; revisit only if the
-collection grows).
+added (a filter would be decorative complexity; revisit only if a project of
+another `type` is ever added).
 
 **Heading hierarchy:** h1 (PageHeader) → h2 per project title (rendered
 inside the preview cover); no h3. Check icons decorative; both lists carry
@@ -548,7 +558,7 @@ Page (print:py-0)
 ```
 
 **Data:** skills come from `skillGroups` in `data/skills.js` (all 13, all 6
-groups) and projects from `data/projects.js` (both entries) — the old
+groups) and projects from `data/projects.js` (all three entries) — the old
 hardcoded `technicalHighlights` and `focusAreas` arrays were deleted
 (issue #5, Resume half). Contact links derive from `data/socialLinks.js`
 plus one local `portfolioUrl` constant (`https://marcportfolio-seven.vercel.app`,
@@ -821,12 +831,44 @@ Important features:
   - Client-side Excel (.xlsx) report generation
 ```
 
+### 3. FastRev (added after Phase 9)
+
+```text
+Project name: FastRev
+Description: Free spaced-repetition flashcard app for students — paste or
+             import study material (PDF, images, documents, or text), turn it
+             into flashcards with AI, and review daily with FSRS scheduling
+             and progress analytics.
+Technologies: React, Vite, Tailwind CSS, Supabase, ts-fsrs, Recharts, Vercel
+              (all verified from the FastRev repo package.json + README)
+Status: Deployed (live demo reachable)
+GitHub: https://github.com/mxrckyyy/FastRev
+                            (verified: repo exists, description "Reviewer
+                            System for students", links to the live URL)
+Live/demo: https://fast-rev-chi.vercel.app
+Screenshots/assets: none in this repository — text-led preview cover used
+                    (same documented fallback as the other projects)
+Important features (verified from the repo README + live site meta):
+  - AI flashcard generation from pasted notes and imported files
+    (PDF via pdf.js, images, .docx via mammoth, .txt/.md)
+  - FSRS spaced-repetition reviews rated Again / Hard / Good / Easy (ts-fsrs)
+  - Deck organization with Supabase Auth + Row Level Security (per-user data)
+  - Progress analytics: retention rate, streaks, due forecasts, review charts
+    (Recharts)
+```
+
+Verification basis (this addition): the live site's `index.html` meta
+description; the GitHub repository `mxrckyyy/FastRev` (fetched via the GitHub
+API — exists and points back to `https://fast-rev-chi.vercel.app`);
+the repo's `package.json` (dependencies); and the repo's `README.md`
+(features list). Nothing in this record is inferred from appearance alone.
+
 **Schema required by `ProjectCard`:**
 `id, title, category, type, description, technologies[], features[], demo, github, featured`
 
 Notes (Phase 6): `featured` is retained in the schema but no longer rendered
-(both projects are featured → equal cards, no ranking); `type` is currently
-unused by the UI (both are `'web'`); `demo`/`github` are optional in the
+(all projects are featured → equal cards, no ranking); `type` is currently
+unused by the UI (all three are `'web'`); `demo`/`github` are optional in the
 component — missing values omit that action button rather than rendering an
 empty link.
 
@@ -858,7 +900,8 @@ two verified-unused duplicates listed above). Flag for later optimization:
 
 - `profile.jpg` is served at full 1536×2048 with no responsive variants
   (candidate for resizing/WebP; only 52 KB total, verified Phase 9).
-- No screenshots exist for the two showcased projects — the Projects page
+- No screenshots exist for the showcased projects (Gasto Buster, Inventory
+  Management System, FastRev) — the Projects page
   (Phase 6) uses a designed text-led preview cover (category + title) as the
   documented fallback; capture real screenshots to upgrade the covers in a
   later phase.
@@ -1001,16 +1044,18 @@ it into this file; it describes files that no longer exist.
 27. **Footer back-to-top duplicates `BackToTop`** `[RESOLVED — Phase 9]` —
     the Footer button (and its `scrollToTop`/`ArrowUp` code) was removed;
     the floating `BackToTop` is the only back-to-top control.
-28. **Skills closing copy hardcodes the project count** `[OPEN]` —
-    `pages/Skills.jsx` says "Both are live", which is only correct while
-    `data/projects.js` holds exactly two projects with live demos; reword to
-    be count-aware if a project is ever added (truthful today).
+28. **Skills closing copy hardcodes the project count** `[RESOLVED —
+    FastRev addition]` — `pages/Skills.jsx` said "Both are live", which was
+    only correct while `data/projects.js` held exactly two projects with live
+    demos; it now reads **"All are live"**, which is true for any number of
+    projects as long as every entry has a `demo` (re-check that sentence if a
+    project without a live demo is ever added).
 
 ---
 
 ## 14. Content/Data Rules
 
-- `src/data/projects.js` (2 projects), `skills.js` (6 skill groups / 13 text
+- `src/data/projects.js` (3 projects), `skills.js` (6 skill groups / 13 text
   skills), `socialLinks.js` (Email + GitHub) — single source, never
   duplicated in pages.
 - Resume PDF: `/MarcResume.pdf`. Profile image: `/images/profile.jpg`.
@@ -1281,10 +1326,58 @@ validated state.
 typeface (#9), framer-motion bundle weight (#19), responsive portrait
 variants (#20), SEO assets + `og:url`/`og:image` (#21 — belongs to a
 future SEO phase), Vercel EmailJS env vars (#22 — configuration task),
-linter/formatter/tests (#25), Skills "Both are live" copy (#28).
+linter/formatter/tests (#25). (Skills "Both are live" copy (#28) was
+resolved by the FastRev addition — reworded to "All are live".)
 
 **Not performed (no browser automation in this environment):** a real
 Ctrl+P print preview (page count, colors, margins), an interactive
 keyboard walkthrough of the new drawer focus management, visual checks at
 320–1440 px, real-device testing, a real EmailJS delivery, and a
 production deploy check.
+
+### End of FastRev addition (data + two line-level UI changes)
+
+**Scope:** `src/data/projects.js` (FastRev record appended),
+`src/components/home/SelectedWork.jsx` (grid gained `lg:grid-cols-3`),
+`src/pages/Skills.jsx` ("Both are live" → "All are live", issue #28).
+No components, routes, dependencies, data schema, or design tokens changed.
+
+**FastRev verification basis (no claims beyond this):**
+
+- Live site `https://fast-rev-chi.vercel.app` `index.html` fetched — meta
+  description confirms purpose (free spaced-repetition flashcards for
+  students, AI card generation, FSRS review); the app itself is an SPA whose
+  UI was **not** clicked through (no browser automation) — do not claim the
+  interactive flows were tested.
+- GitHub repo `https://github.com/mxrckyyy/FastRev` verified via the GitHub
+  API (exists, description "Reviewer System for students", homepage links to
+  the exact live URL) and its README + `package.json` fetched — source of
+  every feature and technology tag used.
+
+**Validation:**
+
+- `npm run build` ✓ (2136 modules, no warnings; CSS 34.32 kB / gzip
+  7.31 kB; chunk sizes unchanged from Phase 9).
+- SSR smoke render (Vite `ssrLoadModule` + `MemoryRouter` +
+  `react-dom/server`, throwaway script deleted afterwards): **36/36 checks
+  OK** — Projects: FastRev present, exact `href="https://fast-rev-chi.vercel.app"`,
+  exact `href="https://github.com/mxrckyyy/FastRev"`, 3 `<article>` cards,
+  3 "Live Demo" actions, tech tags (`ts-fsrs`, `Recharts`, category),
+  `target="_blank"` + `rel="noreferrer noopener"`, existing Gasto Buster +
+  Inventory records intact, single `h1`, no `undefined`, no empty/`#` hrefs.
+  Home: FastRev teaser present, 3 teasers, `lg:grid-cols-3` emitted, single
+  `h1`, h1→h2→h3 order intact. Skills: "All are live" present, "Both are
+  live" absent, titles include FastRev. Resume: FastRev section + exact demo
+  URL + all 3 projects. About: project list includes FastRev. Contact /
+  NotFound render clean with a single `h1`.
+- `vite preview` direct loads `/`, `/projects`, `/skills`, `/resume`,
+  `/about`, `/contact`, `/nonexistent` → all 200 (preview process stopped
+  afterwards); built bundle `dist/assets/index-*.js` contains both exact
+  URLs.
+- Diff review: exactly 3 files modified (+28 / −2), no schema change, no
+  new dependencies, no asset changes, no unrelated edits, no secrets.
+
+**Not performed (no browser automation):** real-browser visual checks at
+320–1440 px (mobile tag wrapping, grid balance at lg), a keyboard/focus
+pass, console inspection in a real browser, clicking the FastRev demo link
+end-to-end from the portfolio, and a deploy check — deferred to QA.

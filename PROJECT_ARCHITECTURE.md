@@ -86,7 +86,8 @@ marcportfolio/
 │   │   │   └── Page.jsx       # Page shell: vertical padding + container
 │   │   ├── home/
 │   │   │   ├── Hero.jsx       # Home hero: content stack + photo figure + CTAs (Phase 3)
-│   │   │   └── SelectedWork.jsx # 2 project teasers → /projects (Phase 3)
+│   │   │   └── SelectedWork.jsx # 3 project teasers → /projects (Phase 3;
+│   │                       grid: 1 col → sm:2 → lg:3 since the FastRev addition)
 │   │   ├── about/
 │   │   │   ├── Intro.jsx      # First-person intro + portrait + fact strip (Phase 4)
 │   │   │   ├── LearningJourney.jsx # 6 learning themes in a responsive grid (Phase 4)
@@ -237,7 +238,8 @@ pages/Home.jsx            (composition only — no markup of its own)
 │       <figure> → img /images/profile.jpg + figcaption availability bar
 └── components/home/SelectedWork.jsx
     ├── header: eyebrow + h2 "Things I've built" + Button to="/projects"
-    └── ul → 2 × Link to="/projects" cards built from data/projects.js
+    └── ul (grid: 1 col → sm:grid-cols-2 → lg:grid-cols-3) → 3 × Link to
+        "/projects" cards built from data/projects.js
         (category, h3 title, description, tech chips, "View project →")
 ```
 
@@ -352,14 +354,15 @@ pages/Projects.jsx               (header + grid + GitHub banner — thin)
 
 - **Data:** `data/projects.js` unchanged in Phase 6 — schema, URLs, and
   `featured` flags intact, so `components/home/SelectedWork.jsx` (Home
-  teasers) is untouched. `featured` is retained in data but not rendered
-  (both projects featured → equal cards).
+  teasers) was untouched. `featured` is retained in data but not rendered
+  (all projects are featured → equal cards). FastRev was appended to the
+  data file afterwards as a data-only change (see §17).
 - **Link safety:** `Button` `href` gives every external action
   `target="_blank"` + `rel="noreferrer noopener"`; missing `demo`/`github`
   omits the button (no empty/fake links).
-- **No filter:** 2 projects, both `type: 'web'` — no meaningful category
-  split, so no filter UI (per Phase 6 brief; revisit if the collection
-  grows).
+- **No filter:** 3 projects, all `type: 'web'` — no meaningful category
+  split, so no filter UI (per Phase 6 brief; revisit only if a project of
+  another `type` is ever added).
 - **Heading hierarchy:** h1 → h2 per project (inside the preview cover);
   list `aria-label`s on features/technologies; decorative icons
   `aria-hidden`; no clickable `div`s.
@@ -555,7 +558,7 @@ Static data modules, imported directly by components (no fetching, no CMS).
 src/data/projects.js
   export const githubProfile = 'https://github.com/mxrckyyy'
   export const projects = [ { id, title, category, type, description,
-      technologies[], features[], demo, github, featured }, … ]   // 2 entries
+      technologies[], features[], demo, github, featured }, … ]   // 3 entries
 
 src/data/skills.js
   export const skillGroups = [ { id, title, icon, skills: [{ name, note? }] } ]
@@ -995,3 +998,32 @@ change complete:
   details in `PROJECT_CONTEXT.md` §16). **Not tested in a real browser:**
   the new drawer focus behavior, actual Ctrl+P print output, and visual
   breakpoints (no browser automation) — deferred to QA.
+
+### Data addition — FastRev (not a numbered phase)
+
+- Added a third project record to `src/data/projects.js` (`id: 'fastrev'`,
+  demo `https://fast-rev-chi.vercel.app`, GitHub
+  `https://github.com/mxrckyyy/FastRev`) using the existing schema — no
+  schema, component, route, dependency, or design-token changes. Every
+  field (description, 4 features, 7 technology tags) was verified from the
+  live site's meta description, the GitHub repository via the API, the
+  repo's `package.json`, and the repo's README — nothing inferred from
+  appearance.
+- `components/home/SelectedWork.jsx` — one-class change: the teaser grid
+  gained `lg:grid-cols-3` so all three teasers fill one complete row on
+  desktop (selection logic untouched: Selected Work still maps every entry
+  in `data/projects.js`; sm/md show 2 + 1, which wraps cleanly).
+- `pages/Skills.jsx` — closing copy "Both are live" → "All are live"
+  (issue #28 in `PROJECT_CONTEXT.md` §13; required for truthfulness once
+  the collection exceeded two projects).
+- Projects page, Resume, and About needed **no code changes** — they render
+  `data/projects.js` directly, so FastRev appears automatically (Projects
+  keeps its 1 → `md:grid-cols-2` grid; a third card lands in row 2).
+- Validated: `npm run build` ✓ (2136 modules, no warnings), SSR smoke
+  render **36/36 checks ✓** (exact demo/GitHub hrefs, 3 cards/teasers,
+  existing records intact, heading hierarchy, link safety, Skills reword,
+  7-page regression), `vite preview` 7 routes → 200, built bundle contains
+  both exact URLs, diff review of the 3 changed files (+28/−2) — details
+  in `PROJECT_CONTEXT.md` §16. **Not tested:** real-browser responsive
+  checks and click-through of the FastRev demo link (no browser
+  automation) — deferred to QA.
