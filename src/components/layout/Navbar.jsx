@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import Button from '../ui/Button'
 import { containerClasses } from '../../utils/container'
+
+const drawerFocusableSelector = 'a[href], button:not([disabled])'
 
 const navLinks = [
   { to: '/', label: 'Home', end: true },
@@ -32,6 +34,9 @@ const drawerLinkClasses = ({ isActive }) =>
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const drawerRef = useRef(null)
+  const toggleRef = useRef(null)
+  const wasOpenRef = useRef(false)
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 8)
@@ -44,7 +49,36 @@ function Navbar() {
     document.body.style.overflow = isOpen ? 'hidden' : ''
 
     const onKeyDown = (event) => {
-      if (event.key === 'Escape') setIsOpen(false)
+      if (event.key === 'Escape') {
+        setIsOpen(false)
+        return
+      }
+
+      if (event.key !== 'Tab' || !isOpen) return
+      const drawerFocusables = drawerRef.current
+        ? Array.from(drawerRef.current.querySelectorAll(drawerFocusableSelector))
+        : []
+      if (drawerFocusables.length === 0) return
+
+      const toggle = toggleRef.current
+      const cycle =
+        toggle && toggle.getClientRects().length > 0
+          ? [toggle, ...drawerFocusables]
+          : drawerFocusables
+      const first = cycle[0]
+      const last = cycle[cycle.length - 1]
+      const active = document.activeElement
+
+      if (!cycle.includes(active)) {
+        event.preventDefault()
+        ;(event.shiftKey ? last : first).focus()
+      } else if (event.shiftKey && active === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault()
+        first.focus()
+      }
     }
     const onResize = () => {
       if (window.innerWidth >= 768) setIsOpen(false)
@@ -60,6 +94,28 @@ function Navbar() {
     }
   }, [isOpen])
 
+  useEffect(() => {
+    if (isOpen) {
+      wasOpenRef.current = true
+      drawerRef.current?.querySelector(drawerFocusableSelector)?.focus()
+      return
+    }
+
+    if (!wasOpenRef.current) return
+    wasOpenRef.current = false
+
+    const active = document.activeElement
+    const focusLost =
+      !active ||
+      active === document.body ||
+      (drawerRef.current?.contains(active) ?? false)
+    if (!focusLost) return
+
+    const toggle = toggleRef.current
+    if (toggle && toggle.getClientRects().length > 0) toggle.focus()
+    else document.getElementById('main-content')?.focus()
+  }, [isOpen])
+
   const closeMenu = () => setIsOpen(false)
 
   const headerClasses = [
@@ -68,7 +124,7 @@ function Navbar() {
   ].join(' ')
 
   const drawerClasses = [
-    'fixed inset-x-0 top-16 z-[999] border-b border-border bg-background/95 px-4 pt-4 pb-6 shadow-lg backdrop-blur-md transition-[opacity,transform,visibility] duration-200 md:hidden sm:px-6',
+    'fixed inset-x-0 top-16 z-[999] max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-border bg-background/95 px-4 pt-4 pb-6 shadow-lg backdrop-blur-md transition-[opacity,transform,visibility] duration-200 md:hidden sm:px-6',
     isOpen
       ? 'visible translate-y-0 opacity-100'
       : 'invisible -translate-y-2 opacity-0',
@@ -113,6 +169,7 @@ function Navbar() {
         </nav>
 
         <Button
+          ref={toggleRef}
           variant="icon"
           className="md:hidden"
           aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -124,7 +181,7 @@ function Navbar() {
         </Button>
       </div>
 
-      <div id="mobile-menu" className={drawerClasses} aria-hidden={!isOpen}>
+      <div id="mobile-menu" ref={drawerRef} className={drawerClasses} aria-hidden={!isOpen}>
         <nav aria-label="Mobile navigation">
           <ul className="flex flex-col gap-1">
             {navLinks.map((link) => (

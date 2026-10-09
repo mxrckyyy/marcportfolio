@@ -65,11 +65,10 @@ marcportfolio/
 ├── PROJECT_ARCHITECTURE.md    # This file
 ├── .env.example               # EmailJS VITE_* variable names + setup (no values)
 ├── .env.local                 # gitignored (*.local) — real EmailJS values (local only)
-├── ME.jpg                     # Unused duplicate of public/images/profile.jpg
 ├── .gitignore                 # node_modules, dist, dist-ssr, *.local, .DS_Store, *.log
 │
 ├── public/                    # Static files copied verbatim to dist/
-│   ├── favicon.svg            # "JM" monogram favicon (accent #4f8cff — out of sync, known issue)
+│   ├── favicon.svg            # "JM" monogram favicon (token colors #60a5fa on #0b0f17, Phase 9)
 │   ├── MarcResume.pdf         # Downloadable resume (linked by Resume page)
 │   └── images/
 │       └── profile.jpg        # Hero avatar + og:image (1536×2048, 52 KB)
@@ -79,13 +78,11 @@ marcportfolio/
 │   ├── App.jsx                # MotionConfig → BrowserRouter → Routes → Layout
 │   ├── index.css              # @import "tailwindcss" + @theme tokens + @layer base
 │   │                          # + @media print block scoped to Resume (175 lines)
-│   ├── assets/
-│   │   └── MarcResume.pdf     # Unused duplicate of public/MarcResume.pdf
 │   ├── components/
 │   │   ├── layout/
 │   │   │   ├── Layout.jsx     # Shared shell: ScrollToTop, skip link, Navbar, <Outlet/>, Footer, BackToTop
-│   │   │   ├── Navbar.jsx     # NavLink desktop list + mobile drawer
-│   │   │   ├── Footer.jsx     # Social links + copyright + back-to-top button
+│   │   │   ├── Navbar.jsx     # NavLink desktop list + mobile drawer (focus-managed, Phase 9)
+│   │   │   ├── Footer.jsx     # Copyright + compact social links (Phase 9: back-to-top button removed)
 │   │   │   └── Page.jsx       # Page shell: vertical padding + container
 │   │   ├── home/
 │   │   │   ├── Hero.jsx       # Home hero: content stack + photo figure + CTAs (Phase 3)
@@ -205,8 +202,8 @@ App (MotionConfig)
     │   │               data/socialLinks, animations, @emailjs/browser,
     │   │               import.meta.env VITE_EMAILJS_*)
     │   └── NotFound  → Page, Button
-    ├── Footer        → SocialLinks, lucide ArrowUp (own scroll-to-top)
-    ├── BackToTop     → framer-motion AnimatePresence (floating)
+    ├── Footer        → SocialLinks (copyright + compact socials)
+    ├── BackToTop     → framer-motion AnimatePresence (sole back-to-top, Phase 9)
     └── ScrollToTop    → react-router useLocation (route scroll reset)
 ```
 
@@ -221,7 +218,7 @@ App (MotionConfig)
 | `ProjectCard({ project })` | Data-driven card; schema in `PROJECT_CONTEXT.md` §11. Structure: 16:9 text-led preview cover (mono category + h2 title — screenshot fallback) → description → "Key features" list → "Technologies used" tags → conditional actions (`Live Demo` primary when `demo` exists; `View Code` secondary, or primary when no demo). Equal treatment for all projects (`featured` no longer rendered); hover = border color only. |
 | `SocialLinks({ variant='default' \| 'compact' })` | Maps `data/socialLinks.js` (Email, GitHub). |
 | `Page({ children, className })` | Page shell: `py-12 sm:py-14 md:py-20` + container. |
-| `BackToTop()` | Floating button, visible after `scrollY > 0.8 × innerHeight`. |
+| `BackToTop()` | Floating button, visible after `scrollY > 0.8 × innerHeight` — the only back-to-top control (the Footer's duplicate button was removed in Phase 9). |
 
 **Home page structure (Phase 3)**
 
@@ -398,15 +395,17 @@ pages/Resume.jsx                 (single file — no new components)
   both `projects`, and `socialLinks` (Email + GitHub) are imported; one
   module-local `portfolioUrl` constant (documented URL). The old
   `technicalHighlights`/`focusAreas` arrays are deleted (issue #5).
-- **PDF:** `/MarcResume.pdf` from `public/` (byte-identical unused duplicate
-  remains in `src/assets/`); Phase 7 did not modify the PDF and its text
-  contents were not machine-verified in-session.
+- **PDF:** `/MarcResume.pdf` from `public/` (the byte-identical unused
+  duplicate in `src/assets/` was deleted in Phase 9); Phase 7 did not
+  modify the PDF and its text contents were not machine-verified in-session.
 - **Print scoping:** `useEffect` sets `data-print-resume` on `<body>`
   (cleared on unmount); `@media print` rules at the end of `index.css`
   activate only for that attribute — white background, site chrome hidden
   (`header/footer/nav/button` outside `<main>` + skip link), dark
   print-safe color overrides for `.resume-print`, `.resume-sheet` background
-  reset. Other pages' print output is untouched.
+  reset. The PageHeader is additionally wrapped in `print:hidden` (Phase 9),
+  so the printed résumé starts at the identity block. Other pages' print
+  output is untouched.
 - **Heading hierarchy:** h1 → h2 per section → h3 per project; identity name
   is a `<p>`; section titles reuse the mono `//` eyebrow pattern.
 - **Animation:** PageHeader `fadeUp` + actions `fadeUp` on mount only; the
@@ -542,7 +541,7 @@ use `border-border-strong`.
 | Meta images | `og:image` / `twitter:image` → `/images/profile.jpg` (relative URL — works on Vercel, is invalid for some crawlers without an absolute URL) |
 | Skills badges | None — Skills renders text chips (Phase 5); shields.io no longer used |
 | Icons | Bundled `lucide-react` components |
-| Unused | `ME.jpg` (root), `src/assets/MarcResume.pdf` |
+| Unused (deleted Phase 9) | `ME.jpg` (root) and `src/assets/MarcResume.pdf` removed as verified-unused duplicates; git history retains them |
 
 No image optimization pipeline, no `srcset`/`sizes`, no WebP/AVIF conversion.
 
@@ -960,3 +959,39 @@ change complete:
   delivery and any interactive/visual browser behavior (no browser
   automation) — deferred to QA; **Vercel env vars still need to be added**
   before the next deploy.
+
+### Phase 9 (portfolio-wide UI/UX audit + focused fixes)
+
+- Portfolio-wide audit (design system, layout/nav, all seven pages and
+  their components, animation, responsive/a11y/interaction/print/
+  performance) followed by six focused fixes:
+  - `components/layout/Footer.jsx` — the duplicate back-to-top button (and
+    its `scrollToTop`/`ArrowUp` code) removed; the floating `BackToTop` is
+    now the sole control (issues #5/#27).
+  - `components/layout/Navbar.jsx` — mobile drawer focus management (focus
+    moves to the first link on open, restored to the visible toggle or
+    `main#main-content` on close), Tab/Shift+Tab wrapped within toggle +
+    drawer links while open, and `max-h-[calc(100dvh-4rem)] overflow-y-auto`
+    so the menu scrolls on short/landscape phone viewports.
+  - `pages/Resume.jsx` — PageHeader wrapped in `print:hidden` so a printed
+    résumé starts at the identity block instead of site chrome.
+  - `public/favicon.svg` — colors aligned to tokens (#60a5fa on #0b0f17;
+    issue #10).
+  - `src/index.css` — never-loaded `"Fira Code"` removed from `--font-mono`
+    (issue #8; rendered output unchanged).
+  - Deleted verified-unused duplicates `ME.jpg` and
+    `src/assets/MarcResume.pdf` (issue #24); empty `src/assets/` removed
+    (both files remain in git history).
+- No new dependencies; routing, data files, the PDF, EmailJS
+  configuration, and all page content/copy untouched.
+- Validated: `npm run build` ✓ (2136 modules, CSS 34.32 kB / gzip 7.31 kB,
+  no warnings), SSR smoke render **112/112 checks ✓** across all 7 routes
+  (structure, landmarks, single h1, back-to-top dedupe regression, zero
+  React warnings), `vite preview` → 7 routes + `/MarcResume.pdf` +
+  `/favicon.svg` + `/images/profile.jpg` all 200 ✓, built-output audit
+  (no "Fira Code" in CSS, print block intact, `100dvh`/`print:hidden`
+  utilities emitted, token favicon in dist, no `ME.jpg` in dist), and a
+  diff review of the 7 changed files (no secrets, no data/PDF changes —
+  details in `PROJECT_CONTEXT.md` §16). **Not tested in a real browser:**
+  the new drawer focus behavior, actual Ctrl+P print output, and visual
+  breakpoints (no browser automation) — deferred to QA.

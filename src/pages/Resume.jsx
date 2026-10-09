@@ -41,11 +41,13 @@ function Resume() {
   return (
     <Page className="print:py-0">
       <div className="resume-print">
-        <PageHeader
-          eyebrow="Resume"
-          title="My Resume"
-          description="A concise snapshot of my education, technical skills, and projects. View or download the PDF for the full resume."
-        />
+        <div className="print:hidden">
+          <PageHeader
+            eyebrow="Resume"
+            title="My Resume"
+            description="A concise snapshot of my education, technical skills, and projects. View or download the PDF for the full resume."
+          />
+        </div>
 
         <motion.div
           className="mb-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap print:hidden"

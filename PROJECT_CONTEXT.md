@@ -218,6 +218,15 @@ the title).
   `data/socialLinks.js`) and `components/contact/ContactForm.jsx`
   (per-field accessible validation, loading/success/error states, EmailJS
   config moved from hardcoded values to `VITE_EMAILJS_*` env vars) (see §7).
+- **Phase 9 (portfolio-wide UI/UX audit + focused fixes): COMPLETE** —
+  cross-page audit (design system, layout/nav, 7 pages, animation,
+  responsive/a11y/interaction/print/performance) followed by six focused
+  fixes: Footer back-to-top removed (floating `BackToTop` is the sole
+  control), mobile drawer focus management + Tab wrap + short-screen scroll,
+  Resume print hides the PageHeader chrome, favicon aligned to tokens,
+  never-loaded "Fira Code" removed from `--font-mono`, and the two verified
+  unused duplicate files deleted (`ME.jpg`, `src/assets/MarcResume.pdf`) —
+  details in §16.
 - **Not started** (later phases): Footer polish, new portfolio sections,
   per-route SEO titles/meta, security audit, performance optimization,
   final QA. **Configuration task (not a phase):** the three EmailJS env vars
@@ -225,7 +234,7 @@ the title).
 
 ---
 
-## 7. Current Architecture (post-Phase 8)
+## 7. Current Architecture (post-Phase 9)
 
 Multi-page SPA. Seven real routes served by React Router; shared Navbar/Footer
 via a layout route with `<Outlet />`.
@@ -247,14 +256,15 @@ App (MotionConfig reducedMotion="user")
         └── Route element={<Layout />}
             ├── ScrollToTop        (instant scroll on pathname change)
             ├── Skip link          (#main-content)
-            ├── Navbar             (NavLink active states + mobile drawer)
+            ├── Navbar             (NavLink active states + mobile drawer
+            │                       with focus management, Phase 9)
             ├── motion.main key={pathname}  (subtle 0.25s fade per route)
             │   └── <Outlet /> → page
-            ├── Footer
-            └── BackToTop
+            ├── Footer             (copyright + compact socials only)
+            └── BackToTop          (sole back-to-top control since Phase 9)
 ```
 
-### File map (post-Phase 8)
+### File map (post-Phase 9)
 
 ```text
 src/
@@ -292,6 +302,12 @@ stylesheet, `Linkedin`/`Facebook` icon-map entries (confirmed unused).
 - Mobile (<768px): icon toggle (`aria-expanded`, `aria-controls="mobile-menu"`)
   opens a drawer + dim overlay; Escape closes; body scroll locks; resize ≥768px
   closes; drawer links close on click; closed links have `tabIndex={-1}`.
+  Phase 9 additions: focus moves to the first drawer link on open and is
+  restored on close (to the visible toggle, else to `main#main-content`) so
+  it is never dropped on `<body>`; Tab/Shift+Tab wrap within toggle + drawer
+  links while open (focus cannot wander behind the overlay); the drawer gets
+  `max-h-[calc(100dvh-4rem)] overflow-y-auto` so it scrolls on short /
+  landscape phone viewports.
 - Scroll-spy/IntersectionObserver removed (routing owns active state).
 - Route changes: instant scroll to top + subtle main fade (Framer Motion),
   both respecting `prefers-reduced-motion`.
@@ -539,7 +555,7 @@ plus one local `portfolioUrl` constant (`https://marcportfolio-seven.vercel.app`
 documented in §1); nothing else is hardcoded.
 
 **PDF actions:** both buttons point to `/MarcResume.pdf` (the `public/` copy;
-`src/assets/MarcResume.pdf` remains an unused byte-identical duplicate).
+the unused `src/assets/MarcResume.pdf` duplicate was deleted in Phase 9).
 View opens the real PDF in a new tab; Download uses a sensible filename.
 The PDF file itself was NOT regenerated in Phase 7 and its text contents
 could not be machine-verified in this session (no PDF text extraction
@@ -551,7 +567,9 @@ block at the end of `src/index.css`: white page, site chrome hidden
 (`header/footer/nav/button` outside `<main>` + skip link), dark
 print-safe colors for `.resume-print` descendants, and `.resume-sheet`
 background reset. Printing any other page is unchanged — no attribute,
-no rules. In-page helpers: actions `print:hidden`, section headings
+no rules. In-page helpers: actions `print:hidden`, PageHeader wrapper
+`print:hidden` (Phase 9 — the printed résumé starts at the identity block
+instead of repeating site chrome), section headings
 `print:break-after-avoid`, education/projects `print:break-inside-avoid`.
 
 **Heading hierarchy:** h1 (PageHeader) → h2 per section → h3 per project
@@ -679,7 +697,9 @@ via `MotionConfig reducedMotion="user"` + global CSS.
 | `--color-warning` | `#fbbf24` | warning states (token reserved) |
 | `--color-danger` | `#f87171` | error states |
 
-Other tokens: `--font-sans` / `--font-mono` (Fira Code → system mono fallback),
+Other tokens: `--font-sans` / `--font-mono` (system monospace stack — the
+never-loaded "Fira Code" entry was removed in Phase 9 so the declaration
+matches what actually renders),
 `--radius-sm/md/lg` (6/10/16px), `--container-page: 1200px` → `max-w-page`,
 `--animate-bounce-soft` + `@keyframes bounce-soft`.
 
@@ -751,8 +771,11 @@ before Phase 2; none was added).
 - Global `:focus-visible` = 2px `--color-primary` outline, 3px offset.
 - 44px minimum touch targets; interactive borders use `border-strong` (≥3:1).
 - Text contrast ≥4.5:1 (foreground 17.6:1, muted ~6.4:1, primary ~7.5:1).
-- `aria-current` on active nav; labelled nav landmarks; `aria-hidden` + `tabIndex`
-  drawer management; `aria-live` on form status; meaningful `alt` text.
+- `aria-current` on active nav; labelled nav landmarks; `aria-hidden` +
+  `tabIndex` drawer management with focus moved into the open drawer and
+  restored on close (visible toggle, else `main`), Tab wrapped within the
+  open drawer, and `max-h`/`overflow-y-auto` for short viewports (Phase 9);
+  `aria-live` on form status; meaningful `alt` text.
 - `prefers-reduced-motion`: global CSS kills animations/transitions; Framer
   `reducedMotion="user"`.
 
@@ -816,23 +839,25 @@ additional projects.
 
 | Asset | Location | Used? | Notes |
 | --- | --- | --- | --- |
-| `public/images/profile.jpg` | 1536×2048 JPEG, 52 KB | Yes — Home hero avatar, `og:image`, `twitter:image` | Only photo in use |
-| `public/favicon.svg` | 64×64 SVG "JM" | Yes — `index.html` icon | Accent `#4f8cff` differs from site accent `#60a5fa` |
+| `public/images/profile.jpg` | 1536×2048 JPEG, 52 KB | Yes — Home hero avatar, `og:image`, `twitter:image` | Only photo in use (size verified in Phase 9) |
+| `public/favicon.svg` | 64×64 SVG "JM" | Yes — `index.html` icon | Accent `#60a5fa` on `#0b0f17`, aligned to tokens in Phase 9 (issue #10) |
 | `public/MarcResume.pdf` | 92.5 KB | Yes — View/Download actions on Resume page | Served at `/MarcResume.pdf`; file unchanged in Phase 7; **text contents not machine-verified** (no PDF extraction in session) |
-| `src/assets/MarcResume.pdf` | 92.5 KB | **No** | Byte-identical duplicate of the public copy; not imported anywhere |
-| `ME.jpg` (repo root) | 52 KB | **No** | Byte-identical duplicate of `public/images/profile.jpg`; tracked in git but unused |
 | `dist/` build output | generated | n/a | gitignored, regenerated by `npm run build` |
+
+**Deleted in Phase 9 (issue #24):** `ME.jpg` (repo root, byte-identical
+duplicate of `public/images/profile.jpg`) and `src/assets/MarcResume.pdf`
+(byte-identical duplicate of the public copy) — verified unreferenced before
+removal; git history retains both. The `src/assets/` directory no longer
+exists.
 
 **Not present:** project screenshots, logo/brand marks, custom icons (all icons
 come from lucide-react), local fonts, background art, videos.
 
-**Rules:** do not delete assets in unrelated phases. Flag for later
-optimization:
+**Rules:** do not delete assets in unrelated phases (Phase 9 removed the
+two verified-unused duplicates listed above). Flag for later optimization:
 
-- Duplicated `ME.jpg` and `src/assets/MarcResume.pdf` (candidates for cleanup
-  in a later phase).
 - `profile.jpg` is served at full 1536×2048 with no responsive variants
-  (candidate for resizing/WebP).
+  (candidate for resizing/WebP; only 52 KB total, verified Phase 9).
 - No screenshots exist for the two showcased projects — the Projects page
   (Phase 6) uses a designed text-led preview cover (category + title) as the
   documented fallback; capture real screenshots to upgrade the covers in a
@@ -844,16 +869,22 @@ optimization:
   shields.io is no longer used anywhere.
 - lucide-react SVG icons (bundled).
 
-**Fonts:** `--font-mono: 'Fira Code', …` is declared in `@theme` but **no font
-is loaded** anywhere (no `@font-face`, no Google Fonts link). Fira Code only
-renders if installed locally; otherwise it silently falls back to
-`ui-monospace`. Body font is the system stack.
+**Fonts:** `--font-mono` is now a pure system monospace stack
+(`ui-monospace, …`). An earlier `"Fira Code"` entry was declared but never
+loaded (no `@font-face`, no Google Fonts link) and was removed in Phase 9
+so the declaration matches reality — rendered output is unchanged (it had
+been falling back to `ui-monospace` all along). If a branded mono font is
+wanted later, self-host it as a subsetted woff2, then re-add it to the
+token. Body font is the system stack.
 
 ---
 
 ## 13. Known Issues & Backlog
 
-Problems identified in the Phase 1 audit, re-validated after Phase 2.
+Problems identified in the Phase 1 audit, re-validated after Phase 2 and
+re-audited portfolio-wide in Phase 9 (items marked `[RESOLVED — Phase 9]`
+were fixed during that pass; `[OPEN]` items were reviewed and deferred to
+their designated phases).
 **Backlog for later phases — do not fix during unrelated work.** Items marked
 `[RESOLVED — Phase 2]` were fixed or made obsolete by the Phase 2 refactor.
 The full Phase 1 component-by-component analysis of the old hash-anchor version
@@ -874,9 +905,10 @@ it into this file; it describes files that no longer exist.
    on the page.
 4. **Personal branding inconsistency** `[RESOLVED — Phase 2]` — Home hero now
    says "BSIT Student · Aspiring Web Developer" (was "Frontend Developer").
-5. **Inconsistent components** `[PARTIALLY RESOLVED — Phase 7]` — two
-   back-to-top controls still exist (Footer button + floating `BackToTop`);
-   the hardcoded skill-like lists in `pages/Resume.jsx`
+5. **Inconsistent components** `[RESOLVED — Phases 7 & 9]` — the Footer's
+   back-to-top button was removed in Phase 9, leaving the floating
+   `BackToTop` as the single control (issue #27); the hardcoded skill-like
+   lists in `pages/Resume.jsx`
    (`technicalHighlights`, `focusAreas`) were removed in Phase 7 — the
    résumé now renders `data/skills.js` and `data/projects.js` directly.
    (Home's hardcoded `techTags` was removed in Phase 3.)
@@ -890,15 +922,16 @@ it into this file; it describes files that no longer exist.
 
 ### Typography & Color
 
-8. **Declared mono font never loads (Fira Code)** `[OPEN]` — declared in
-   `@theme --font-mono`, still no `@font-face`/link; falls back to
-   `ui-monospace`.
+8. **Declared mono font never loads (Fira Code)** `[RESOLVED — Phase 9]` —
+   the never-loaded `"Fira Code"` entry was removed from `@theme
+   --font-mono`; the token now declares only the system stack that actually
+   renders (no visual change). Re-add a font only by self-hosting a
+   subsetted woff2.
 9. **No display/headline typeface** `[OPEN]` — headings rely on the system UI
    font only.
-10. **Inconsistent accent usage** `[OPEN]` — `public/favicon.svg` uses
-    `#4f8cff` while the design token is `#60a5fa`; success/error values are
-    now tokens (`--color-success`/`--color-danger`) but the favicon is out of
-    sync.
+10. **Inconsistent accent usage** `[RESOLVED — Phase 9]` —
+    `public/favicon.svg` now uses the design tokens (`#60a5fa` accent on
+    `#0b0f17`, was `#4f8cff` on `#0f1115`).
 
 ### Responsive
 
@@ -939,7 +972,8 @@ it into this file; it describes files that no longer exist.
     41.7 KB gzip, Vite `manualChunks` `motion` chunk) for effects that CSS
     could do.
 20. **Full-resolution 1536×2048 portrait** `[OPEN]` — hero avatar has no
-    `srcset`/modern format (`width`/`height` now declared).
+    `srcset`/modern format (`width`/`height` now declared; total size is
+    only 52 KB — verified in Phase 9 — so this is low impact).
 21. **No SEO assets** `[OPEN]` — no `robots.txt`, sitemap, or web manifest;
     `og:url` points to the GitHub profile instead of the deployed site;
     `og:image` is a relative URL.
@@ -957,13 +991,20 @@ it into this file; it describes files that no longer exist.
     (`@import "tailwindcss"` + `@theme` tokens + `@layer base` + a
     Resume-scoped `@media print` block, Phase 7); component
     styles live in JSX utilities.
-24. **Duplicated files in the repo** `[OPEN]` — `ME.jpg`,
-    `src/assets/MarcResume.pdf`.
+24. **Duplicated files in the repo** `[RESOLVED — Phase 9]` — `ME.jpg` and
+    `src/assets/MarcResume.pdf` were verified unreferenced (and byte-
+    identical to their `public/` counterparts) and deleted; git history
+    retains both.
 25. **No linter, formatter, or tests** `[OPEN]`.
 26. **Node engine mismatch warning** `[RESOLVED]` — local machine now runs
     Node v24.19.0 (Vite 7 wants ^20.19 or ≥22.12).
-27. **Footer back-to-top duplicates `BackToTop`** `[OPEN]` — unnecessary
-    component duplication (same as #5).
+27. **Footer back-to-top duplicates `BackToTop`** `[RESOLVED — Phase 9]` —
+    the Footer button (and its `scrollToTop`/`ArrowUp` code) was removed;
+    the floating `BackToTop` is the only back-to-top control.
+28. **Skills closing copy hardcodes the project count** `[OPEN]` —
+    `pages/Skills.jsx` says "Both are live", which is only correct while
+    `data/projects.js` holds exactly two projects with live demos; reword to
+    be count-aware if a project is ever added (truthful today).
 
 ---
 
@@ -1175,3 +1216,75 @@ it into this file; it describes files that no longer exist.
   region announcements), visual checks at 320�1440 px, a keyboard-navigation
   walkthrough, and a real-browser console check (no browser automation in
   this environment) � deferred to QA phase.
+
+### End of Phase 9 (portfolio-wide audit + focused fixes)
+
+**Audit scope:** design system (`src/index.css` tokens/base/print block),
+layout/nav (Layout, Navbar, Footer, BackToTop, Page), all seven pages and
+every component under `src/components/`, animation variants, responsive
+breakpoints (320–1440 px targets), accessibility, interaction flows,
+resume print behavior, and performance. Findings were triaged into six
+focused fixes, items deferred to their designated phases, and this
+validated state.
+
+**Fixes applied (7 files changed):**
+
+- `components/layout/Footer.jsx` — duplicate back-to-top button removed
+  (issues #5/#27); Footer is now copyright + compact socials only; the
+  floating `BackToTop` is the single control.
+- `components/layout/Navbar.jsx` — mobile drawer refinements: focus moves
+  to the first drawer link on open and is restored on close (to the visible
+  toggle, else to `main#main-content`) so it is never dropped on `<body>`;
+  Tab/Shift+Tab wrap within toggle + drawer links while the drawer is open;
+  drawer gets `max-h-[calc(100dvh-4rem)] overflow-y-auto` so short /
+  landscape phone viewports can scroll it.
+- `pages/Resume.jsx` — PageHeader wrapped in `print:hidden`, so a printed
+  résumé starts at the identity block instead of repeating the site's
+  "// RESUME / My Resume" chrome.
+- `public/favicon.svg` — colors aligned to tokens (`#60a5fa` on `#0b0f17`;
+  was `#4f8cff` on `#0f1115`) — issue #10.
+- `src/index.css` — never-loaded `"Fira Code"` removed from `--font-mono`
+  (issue #8; rendered output unchanged — it had been falling back to
+  `ui-monospace` anyway).
+- Deleted verified-unused duplicates `ME.jpg` and
+  `src/assets/MarcResume.pdf` (issue #24); the empty `src/assets/`
+  directory was removed too. Both remain in git history.
+
+**Validation:**
+
+- `npm run build` OK (2136 modules, no warnings; CSS 34.32 kB / gzip
+  7.31 kB; chunks: react 259.74/82.55, motion 127.01/41.74, index
+  48.20/13.36, icons 5.38/2.40, vendor 3.51/1.45 kB raw/gzip).
+- SSR smoke render (Vite `ssrLoadModule` + `MemoryRouter` +
+  `react-dom/server`, throwaway script deleted afterwards):
+  **112/112 checks OK across all 7 routes** — non-empty render; skip link,
+  `main#main-content`, footer, `#mobile-menu` present; toggle
+  `aria-controls`/`aria-expanded`; exactly one `h1` per page; no
+  `undefined`/`NaN` text and no `href="#"`; no leftover Footer
+  back-to-top (dedupe regression); no "Fira Code" in markup; decorative
+  icons `aria-hidden`; route-specific content per page; zero React
+  console warnings/errors during renders.
+- `vite preview` direct loads: `/`, `/about`, `/skills`, `/projects`,
+  `/resume`, `/contact`, an unknown route, `/MarcResume.pdf`,
+  `/favicon.svg`, `/images/profile.jpg` → all 200; preview process
+  cleaned up afterwards.
+- Built-output audit: dist CSS contains no "Fira Code" and retains the
+  `body[data-print-resume]` print block; `100dvh` and `print:hidden`
+  utilities were emitted; `dist/favicon.svg` carries the token colors;
+  `dist/` contains `MarcResume.pdf` + `images/profile.jpg` and no
+  `ME.jpg`.
+- Diff review: 7 files (2 deleted, 5 modified); no secrets in the diff,
+  no `src/data/*` changes, `public/MarcResume.pdf` untouched,
+  `.env.local` untouched and still gitignored.
+
+**Deferred (open issues unchanged):** project screenshots (#2), display
+typeface (#9), framer-motion bundle weight (#19), responsive portrait
+variants (#20), SEO assets + `og:url`/`og:image` (#21 — belongs to a
+future SEO phase), Vercel EmailJS env vars (#22 — configuration task),
+linter/formatter/tests (#25), Skills "Both are live" copy (#28).
+
+**Not performed (no browser automation in this environment):** a real
+Ctrl+P print preview (page count, colors, margins), an interactive
+keyboard walkthrough of the new drawer focus management, visual checks at
+320–1440 px, real-device testing, a real EmailJS delivery, and a
+production deploy check.
