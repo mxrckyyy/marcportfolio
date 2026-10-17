@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import Button from '../ui/Button'
@@ -28,7 +29,7 @@ const drawerLinkClasses = ({ isActive }) =>
     'block rounded-sm px-3 py-2.5 text-base transition-colors duration-200',
     isActive
       ? 'bg-primary-soft font-semibold text-primary'
-      : 'font-medium text-muted hover:bg-border-subtle hover:text-foreground',
+      : 'font-medium text-foreground hover:bg-surface-elevated hover:text-primary',
   ].join(' ')
 
 function Navbar() {
@@ -130,8 +131,8 @@ function Navbar() {
   ].join(' ')
 
   const sidebarClasses = [
-    'fixed right-0 top-0 z-[1060] h-full w-[min(85vw,20rem)] overflow-y-auto border-l border-border-subtle bg-background/95 px-6 py-6 shadow-2xl transition-transform duration-300 md:hidden',
-    isOpen ? 'translate-x-0' : 'translate-x-full',
+    'fixed left-0 top-0 z-[1060] h-full w-[min(85vw,20rem)] overflow-y-auto border-r border-border-subtle bg-background px-6 py-6 shadow-2xl transition-transform duration-300 md:hidden',
+    isOpen ? 'translate-x-0' : '-translate-x-full',
   ].join(' ')
 
   const overlayClasses = [
@@ -139,52 +140,8 @@ function Navbar() {
     isOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
   ].join(' ')
 
-  return (
-    <header className={headerClasses}>
-      <div className={`${containerClasses} flex h-16 items-center justify-between gap-4`}>
-        <Link
-          to="/"
-          className="inline-flex min-h-11 items-center gap-px font-mono text-[1.05rem] font-bold tracking-wide"
-          aria-label="John Marc Comeros — home"
-          onClick={closeMenu}
-        >
-          <span className="text-muted" aria-hidden="true">
-            &lt;
-          </span>
-          <span className="text-primary">JMC</span>
-          <span className="text-muted" aria-hidden="true">
-            /&gt;
-          </span>
-        </Link>
-
-        <nav className="hidden items-center gap-3 md:flex" aria-label="Main navigation">
-          <ul className="flex items-center gap-1">
-            {navLinks.map((link) => (
-              <li key={link.to}>
-                <NavLink to={link.to} end={link.end} className={desktopLinkClasses}>
-                  {link.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-          <Button to="/contact" variant="primary" size="sm">
-            Get in Touch
-          </Button>
-        </nav>
-
-        <Button
-          ref={toggleRef}
-          variant="icon"
-          className="md:hidden"
-          aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={isOpen}
-          aria-controls="mobile-menu"
-          onClick={() => setIsOpen((prev) => !prev)}
-        >
-          {isOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
-        </Button>
-      </div>
-
+  const drawer = (
+    <>
       <div
         className={overlayClasses}
         onClick={closeMenu}
@@ -252,7 +209,58 @@ function Navbar() {
           </Button>
         </nav>
       </div>
-    </header>
+    </>
+  )
+
+  return (
+    <>
+      <header className={headerClasses}>
+        <div className={`${containerClasses} flex h-16 items-center gap-4`}>
+          <Button
+            ref={toggleRef}
+            variant="icon"
+            className="md:hidden"
+            aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setIsOpen((prev) => !prev)}
+          >
+            {isOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+          </Button>
+
+          <Link
+            to="/"
+            className="inline-flex min-h-11 items-center gap-px font-mono text-[1.05rem] font-bold tracking-wide"
+            aria-label="John Marc Comeros — home"
+            onClick={closeMenu}
+          >
+            <span className="text-muted" aria-hidden="true">
+              &lt;
+            </span>
+            <span className="text-primary">JMC</span>
+            <span className="text-muted" aria-hidden="true">
+              /&gt;
+            </span>
+          </Link>
+
+          <nav className="hidden items-center gap-3 md:ml-auto md:flex" aria-label="Main navigation">
+            <ul className="flex items-center gap-1">
+              {navLinks.map((link) => (
+                <li key={link.to}>
+                  <NavLink to={link.to} end={link.end} className={desktopLinkClasses}>
+                    {link.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+            <Button to="/contact" variant="primary" size="sm">
+              Get in Touch
+            </Button>
+          </nav>
+        </div>
+      </header>
+      {typeof document !== 'undefined' ? createPortal(drawer, document.body) : null}
+    </>
   )
 }
 
