@@ -18,7 +18,7 @@ A modern, responsive, job-focused web developer portfolio built with **React**, 
 - **Responsive Layout**: Designed mobile-first, supporting viewports down to 320px.
 - **Dark-First Design Tokens**: Custom CSS variable design system with subtle glow states and glassmorphism navbar.
 - **Interactive Projects Showcase**: Categorized cards featuring open-source GitHub projects with feature breakdowns and code links.
-- **Resume Access**: Instant preview and download support for `MarcResume.pdf`.
+- **Resume Access**: Instant preview and download support for `John-Marc-Comeros-Resume.pdf`.
 - **Contact Integration**: Accessible contact cards and direct messaging form with auto-fallback handling.
 
 ```
@@ -39,7 +39,7 @@ src/
 public/
 ├── images/profile.jpg # profile photo
 ├── favicon.svg
-└── MarcResume.pdf     # downloadable resume
+└── John-Marc-Comeros-Resume.pdf     # downloadable resume
 ```
 
 See `PORTFOLIO_CONTEXT.txt` for the full blueprint and 10-phase build plan.

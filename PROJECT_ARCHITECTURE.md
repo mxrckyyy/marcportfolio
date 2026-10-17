@@ -68,8 +68,8 @@ marcportfolio/
 ├── .gitignore                 # node_modules, dist, dist-ssr, *.local, .DS_Store, *.log
 │
 ├── public/                    # Static files copied verbatim to dist/
-│   ├── favicon.svg            # "JM" monogram favicon (token colors #60a5fa on #0b0f17, Phase 9)
-│   ├── MarcResume.pdf         # Downloadable resume (linked by Resume page)
+│   ├── favicon.svg            # "JM" monogram favicon (token colors #22c55e on #0b0f17, Phase 2)
+│   ├── John-Marc-Comeros-Resume.pdf  # Downloadable resume (linked by Resume page)
 │   └── images/
 │       └── profile.jpg        # Hero avatar + og:image (1536×2048, 52 KB)
 │
@@ -540,7 +540,7 @@ use `border-border-strong`.
 | --- | --- |
 | Static files | `public/` → served at site root (`/images/profile.jpg`, `/MarcResume.pdf`, `/favicon.svg`) |
 | Referenced in JSX | Plain string paths (`src="/images/profile.jpg"`) — not imported, so not hashed/processed by Vite |
-| Resume | `href="/MarcResume.pdf"` with `download` attribute (Resume page) |
+| Resume | `href="/John-Marc-Comeros-Resume.pdf"` with `download` attribute (Resume page) |
 | Meta images | `og:image` / `twitter:image` → `/images/profile.jpg` (relative URL — works on Vercel, is invalid for some crawlers without an absolute URL) |
 | Skills badges | None — Skills renders text chips (Phase 5); shields.io no longer used |
 | Icons | Bundled `lucide-react` components |
@@ -566,7 +566,7 @@ src/data/skills.js
 
 src/data/socialLinks.js
   export const socialLinks = [ { id, label, ariaLabel, handle, url,
-      icon, external } ]                                          // 2 entries: Email, GitHub
+      icon, external } ]                                          // 3 entries: Email, GitHub, LinkedIn (Phase 5)
 ```
 
 **Local component data (not yet centralized):** `About` sections' `facts`

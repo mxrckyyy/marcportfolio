@@ -46,7 +46,7 @@ function Skills() {
       <PageHeader
         eyebrow="Skills"
         title="Skills & Technologies"
-        description="The technologies and tools I'm exploring as I learn to build practical web applications and thoughtful user experiences."
+        description="The technologies I use to build responsive, user-focused web interfaces — led by my frontend stack."
       />
 
       <motion.p

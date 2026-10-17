@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion'
-import { Mail, Github, Globe } from 'lucide-react'
+import { Mail, Github, Globe, Linkedin } from 'lucide-react'
 import { socialLinks } from '../../data/socialLinks'
 
 const iconMap = {
   Mail,
   Github,
   Globe,
+  Linkedin,
 }
 
 const defaultLinkClasses =

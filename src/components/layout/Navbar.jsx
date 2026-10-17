@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import Button from '../ui/Button'
 import { containerClasses } from '../../utils/container'
@@ -37,6 +37,12 @@ function Navbar() {
   const drawerRef = useRef(null)
   const toggleRef = useRef(null)
   const wasOpenRef = useRef(false)
+  const location = useLocation()
+
+  // Close the mobile drawer whenever the route changes.
+  useEffect(() => {
+    setIsOpen(false)
+  }, [location.pathname])
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 8)

@@ -13,7 +13,7 @@ const facts = [
   },
   {
     label: 'Focus',
-    value: 'Web development & UI/UX design',
+    value: 'Frontend development & UI implementation',
   },
 ]
 

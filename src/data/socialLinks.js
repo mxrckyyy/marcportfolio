@@ -17,6 +17,15 @@ export const socialLinks = [
     icon: 'Github',
     external: true,
   },
+  {
+    id: 'linkedin',
+    label: 'LinkedIn',
+    ariaLabel: 'LinkedIn Profile',
+    handle: 'john-marc-comeros-5b8b99437',
+    url: 'https://www.linkedin.com/in/john-marc-comeros-5b8b99437',
+    icon: 'Linkedin',
+    external: true,
+  },
 ]
 
 export default socialLinks

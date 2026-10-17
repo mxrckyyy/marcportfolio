@@ -4,7 +4,7 @@ export const projects = [
   {
     id: 'gasto-buster',
     title: 'Gasto Buster',
-    category: 'Full-Stack Financial & Budget Tracker',
+    category: 'Personal Finance Web App',
     type: 'web',
     description:
       'A modern web application built to streamline personal finance management, track daily expenses, categorize transactions, and provide visual budget analytics.',
@@ -21,7 +21,7 @@ export const projects = [
   {
     id: 'inventory-system',
     title: 'Inventory Management System',
-    category: 'Full-Stack Web App',
+    category: 'Inventory Management Web App',
     type: 'web',
     description:
       'Full-stack real-time inventory platform featuring role-based access control (Admin/Viewer), automated SKU generation, localized financial analytics (₱), and native .xlsx Excel exports.',
@@ -46,7 +46,7 @@ export const projects = [
   {
     id: 'fastrev',
     title: 'FastRev',
-    category: 'Full-Stack AI Flashcard App',
+    category: 'AI Flashcard Web App',
     type: 'web',
     description:
       'A free spaced-repetition flashcard app for students — paste or import study material (PDF, images, documents, or text), turn it into flashcards with AI, and review daily with FSRS scheduling and progress analytics.',

@@ -12,6 +12,7 @@ function ProjectCard({ project }) {
     features = [],
     github,
     demo,
+    image,
   } = project
 
   return (
@@ -19,13 +20,52 @@ function ProjectCard({ project }) {
       className="flex h-full flex-col overflow-hidden rounded-lg border border-border-subtle bg-surface transition-colors duration-200 hover:border-primary"
       variants={staggerCard}
     >
-      <div className="flex aspect-[16/9] flex-col justify-between gap-4 border-b border-border-subtle bg-surface-elevated p-5 sm:p-6">
-        <p className="min-w-0 font-mono text-xs font-medium uppercase tracking-[0.08em] text-primary">
-          {category}
-        </p>
-        <h2 className="min-w-0 text-balance text-[clamp(1.25rem,2.6vw,1.6rem)] font-bold leading-tight tracking-[-0.01em] text-foreground">
-          {title}
-        </h2>
+      <div className="relative aspect-[16/9] overflow-hidden border-b border-border-subtle bg-surface-elevated">
+        {image ? (
+          <>
+            <img
+              src={image}
+              alt={`${title} — project preview`}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/85 to-transparent p-4">
+              <p className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-primary">
+                {category}
+              </p>
+              <h2 className="text-balance text-base font-bold leading-tight tracking-[-0.01em] text-foreground">
+                {title}
+              </h2>
+            </div>
+          </>
+        ) : (
+          <div className="relative flex h-full flex-col justify-between gap-4 p-5 sm:p-6">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 opacity-[0.07]"
+              style={{
+                backgroundImage:
+                  'linear-gradient(to right, var(--color-primary) 1px, transparent 1px), linear-gradient(to bottom, var(--color-primary) 1px, transparent 1px)',
+                backgroundSize: '28px 28px',
+              }}
+            />
+            <p className="relative font-mono text-xs font-medium uppercase tracking-[0.08em] text-primary">
+              {category}
+            </p>
+            <div className="relative flex items-end justify-between gap-3">
+              <h2 className="min-w-0 text-balance text-[clamp(1.25rem,2.6vw,1.6rem)] font-bold leading-tight tracking-[-0.01em] text-foreground">
+                {title}
+              </h2>
+              <span
+                aria-hidden="true"
+                className="shrink-0 font-mono text-3xl font-bold text-primary/25"
+              >
+                {title.charAt(0)}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-5 sm:p-6">

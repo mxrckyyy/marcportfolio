@@ -9,7 +9,7 @@ import { skillGroups } from '../data/skills'
 import { projects } from '../data/projects'
 import { fadeUp } from '../utils/animations'
 
-const resumePdf = '/MarcResume.pdf'
+const resumePdf = '/John-Marc-Comeros-Resume.pdf'
 const portfolioUrl = 'https://marcportfolio-seven.vercel.app'
 
 const contactLinks = [
@@ -21,6 +21,12 @@ const contactLinks = [
     ariaLabel: link.ariaLabel,
     external: link.url.startsWith('http'),
   })),
+  {
+    text: '09690487218',
+    href: 'tel:09690487218',
+    ariaLabel: 'Phone number',
+    external: false,
+  },
   {
     text: portfolioUrl.replace(/^https:\/\//, ''),
     href: portfolioUrl,
@@ -50,7 +56,7 @@ function Resume() {
         </div>
 
         <motion.div
-          className="mb-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap print:hidden"
+          className="mb-8 flex flex-col gap-3 min-[430px]:flex-row min-[430px]:flex-wrap sm:gap-4 print:hidden"
           initial="hidden"
           animate="visible"
           variants={fadeUp}
@@ -79,7 +85,7 @@ function Resume() {
             John Marc Comeros
           </p>
           <p className="mt-1 font-mono text-sm text-primary">
-            BSIT Student &middot; Aspiring Web Developer
+            Junior Frontend Developer
           </p>
           <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
             {contactLinks.map((link) => (
@@ -100,12 +106,12 @@ function Resume() {
           </ul>
 
           <section className="mt-6 border-t border-border-subtle pt-5">
-            <h2 className={sectionTitleClass}>Profile</h2>
+            <h2 className={sectionTitleClass}>Objective</h2>
             <p className="text-sm leading-relaxed text-foreground-strong">
-              Second-year BSIT student building practical projects while
-              developing skills in frontend development, programming, databases,
-              and UI/UX design. I learn best by building real applications and
-              improving them, as shown in the projects below.
+              Motivated BSIT student seeking a Junior Web Developer position to
+              apply hands-on experience in modern web technologies, building
+              clean, functional applications while contributing to dynamic
+              software projects.
             </p>
           </section>
 
@@ -118,7 +124,16 @@ function Resume() {
               <p className="mt-1 text-sm text-muted">
                 Asian College of Technology (ACT) &mdash; Cebu City, Philippines
               </p>
+              <p className="mt-0.5 text-xs text-muted">2024 – 2026</p>
             </div>
+          </section>
+
+          <section className="mt-6 border-t border-border-subtle pt-5 print:break-inside-avoid">
+            <h2 className={sectionTitleClass}>Awards &amp; Honors</h2>
+            <ul className="flex flex-col gap-1.5 text-sm text-foreground">
+              <li>Dean's Lister — 1st Semester, AY 2024–2025</li>
+              <li>Top 6 ASFA Scholar — AY 2024–2025</li>
+            </ul>
           </section>
 
           <section className="mt-6 border-t border-border-subtle pt-5">
@@ -127,9 +142,9 @@ function Resume() {
               {skillGroups.map((group) => (
                 <div
                   key={group.id}
-                  className="grid gap-1 sm:grid-cols-[11rem_1fr] sm:gap-4"
+                  className="grid gap-1 md:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] md:gap-4"
                 >
-                  <dt className="font-mono text-xs uppercase tracking-[0.06em] text-muted sm:pt-0.5">
+                  <dt className="font-mono text-xs uppercase tracking-[0.06em] text-muted md:pt-0.5">
                     {group.title}
                   </dt>
                   <dd className="text-sm text-foreground">

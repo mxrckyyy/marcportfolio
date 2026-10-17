@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Mail, Phone, MapPin, Github } from 'lucide-react'
+import { Mail, Phone, MapPin, Github, Linkedin } from 'lucide-react'
 import { socialLinks } from '../../data/socialLinks'
 import {
   staggerContainer,
@@ -7,7 +7,7 @@ import {
   viewportOnce,
 } from '../../utils/animations'
 
-const iconMap = { Mail, Phone, MapPin, Github }
+const iconMap = { Mail, Phone, MapPin, Github, Linkedin }
 
 const PHONE_VALUE = '09690487218'
 const LOCATION_VALUE = 'Cebu City, Philippines'
@@ -69,7 +69,7 @@ function ContactInfo() {
       </p>
 
       <motion.ul
-        className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(230px,1fr))] gap-4"
+        className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2"
         initial="hidden"
         whileInView="visible"
         viewport={viewportOnce}

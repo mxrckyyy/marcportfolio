@@ -34,16 +34,16 @@ function Hero() {
               className="mt-3 font-mono text-[clamp(1.05rem,3.2vw,1.5rem)] font-semibold tracking-[-0.01em] text-primary"
               variants={staggerItem}
             >
-              2nd-Year BSIT Student · Aspiring Web Developer
+              2nd-Year BSIT Student · Junior Frontend Developer
             </motion.p>
 
             <motion.p
               className="mt-5 max-w-[560px] text-[1.05rem] leading-relaxed text-muted"
               variants={staggerItem}
             >
-              I build practical, responsive, and interactive web experiences
-              while continuously developing my skills in modern web
-              technologies.
+              I build responsive, accessible, and user-focused web interfaces
+              with React and Tailwind CSS, while continuously growing my
+              frontend skills.
             </motion.p>
 
             <motion.div
@@ -69,7 +69,7 @@ function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
           >
-            <figure className="w-[min(100%,clamp(220px,60vw,300px))] overflow-hidden rounded-lg border border-border bg-surface p-2 shadow-[0_0_0_1px_rgba(96,165,250,0.22),0_18px_40px_rgba(0,0,0,0.45)] md:w-[clamp(240px,24vw,340px)]">
+            <figure className="w-[min(100%,clamp(220px,60vw,300px))] overflow-hidden rounded-lg border border-border bg-surface p-2 shadow-[0_18px_40px_rgba(0,0,0,0.45)] md:w-[clamp(240px,24vw,340px)]">
               <img
                 src="/images/profile.jpg"
                 alt="John Marc Comeros — aspiring web developer"

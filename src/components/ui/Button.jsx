@@ -6,8 +6,8 @@ const baseClasses =
 const variantClasses = {
   primary: 'bg-primary text-primary-foreground hover:bg-primary-hover',
   secondary:
-    'border-border-strong bg-white/[0.04] text-foreground hover:border-primary hover:bg-primary-soft hover:text-primary',
-  ghost: 'bg-transparent text-muted hover:bg-border-subtle hover:text-foreground',
+    'border-border-strong bg-surface-elevated text-foreground hover:border-primary hover:bg-primary-soft hover:text-primary',
+  ghost: 'bg-transparent text-muted hover:bg-surface-elevated hover:text-foreground',
   icon: 'size-11 border-border-strong bg-transparent p-0 text-foreground hover:border-primary hover:bg-primary-soft hover:text-primary',
 }
 

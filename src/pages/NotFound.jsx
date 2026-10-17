@@ -11,7 +11,7 @@ function NotFound() {
         title="Page Not Found"
         description="The page you are looking for doesn't exist or has been moved."
       />
-      <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+      <div className="flex flex-col items-center gap-3 min-[430px]:flex-row min-[430px]:justify-center sm:gap-4">
         <Button to="/" variant="primary">
           Back to Home
         </Button>

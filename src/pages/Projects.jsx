@@ -10,7 +10,7 @@ import { viewportOnce, staggerGrid, fadeUp } from '../utils/animations'
 const gridClasses =
   projects.length === 1
     ? 'mx-auto grid max-w-[48rem] grid-cols-1 gap-5'
-    : 'grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6'
+    : 'grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 md:gap-6'
 
 function Projects() {
   return (
@@ -34,7 +34,7 @@ function Projects() {
       </motion.div>
 
       <motion.div
-        className="mt-10 flex flex-col items-stretch gap-5 rounded-lg border border-border-subtle bg-surface p-6 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left"
+        className="mt-10 flex flex-col items-start gap-5 rounded-lg border border-border-subtle bg-surface p-6 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left"
         initial="hidden"
         whileInView="visible"
         viewport={viewportOnce}

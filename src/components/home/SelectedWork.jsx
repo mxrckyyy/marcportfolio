@@ -43,17 +43,29 @@ function SelectedWork() {
             <motion.li key={project.id} className="min-w-0" variants={staggerItem}>
               <Link
                 to="/projects"
-                className="group flex h-full flex-col gap-3 rounded-lg border border-border-subtle bg-surface p-5 transition-colors duration-200 hover:border-primary md:p-6"
+                className="group flex h-full flex-col overflow-hidden rounded-lg border border-border-subtle bg-surface transition-colors duration-200 hover:border-primary"
               >
-                <p className="font-mono text-xs uppercase tracking-[0.08em] text-muted">
-                  {project.category}
-                </p>
-                <h3 className="text-lg font-bold text-foreground transition-colors duration-200 group-hover:text-primary">
-                  {project.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-muted">
-                  {project.description}
-                </p>
+                <div className="relative aspect-[16/9] overflow-hidden border-b border-border-subtle bg-surface-elevated p-4">
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 opacity-[0.07]"
+                    style={{
+                      backgroundImage:
+                        'linear-gradient(to right, var(--color-primary) 1px, transparent 1px), linear-gradient(to bottom, var(--color-primary) 1px, transparent 1px)',
+                      backgroundSize: '24px 24px',
+                    }}
+                  />
+                  <p className="relative font-mono text-xs uppercase tracking-[0.08em] text-muted">
+                    {project.category}
+                  </p>
+                  <h3 className="relative mt-1 text-base font-bold text-foreground transition-colors duration-200 group-hover:text-primary">
+                    {project.title}
+                  </h3>
+                </div>
+                <div className="flex flex-1 flex-col gap-3 p-5 md:p-6">
+                  <p className="text-sm leading-relaxed text-muted">
+                    {project.description}
+                  </p>
                 <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
                   {project.technologies.map((tech) => (
                     <span
@@ -72,6 +84,7 @@ function SelectedWork() {
                     aria-hidden="true"
                   />
                 </span>
+                </div>
               </Link>
             </motion.li>
           ))}

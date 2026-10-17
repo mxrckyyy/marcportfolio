@@ -15,7 +15,7 @@ function About() {
       <PageHeader
         eyebrow="About"
         title="A little about me"
-        description="I'm Marc, a BSIT student exploring web development and building practical projects as I continue learning."
+        description="I'm Marc, a second-year BSIT student and junior frontend developer who enjoys building responsive, user-focused web interfaces."
       />
 
       <Intro />
