@@ -129,16 +129,14 @@ function Navbar() {
     isScrolled || isOpen ? 'border-border-subtle bg-background/75 backdrop-blur-md' : '',
   ].join(' ')
 
-  const drawerClasses = [
-    'fixed inset-x-0 top-16 z-[999] max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-border bg-background/95 px-4 pt-4 pb-6 shadow-lg backdrop-blur-md transition-[opacity,transform,visibility] duration-200 md:hidden sm:px-6',
-    isOpen
-      ? 'visible translate-y-0 opacity-100'
-      : 'invisible -translate-y-2 opacity-0',
+  const sidebarClasses = [
+    'fixed right-0 top-0 z-[1060] h-full w-[min(85vw,20rem)] overflow-y-auto border-l border-border-subtle bg-background/95 px-6 py-6 shadow-2xl transition-transform duration-300 md:hidden',
+    isOpen ? 'translate-x-0' : 'translate-x-full',
   ].join(' ')
 
   const overlayClasses = [
-    'fixed inset-x-0 bottom-0 top-16 z-[998] bg-black/55 transition-opacity duration-200 md:hidden',
-    isOpen ? 'opacity-100' : 'invisible opacity-0',
+    'fixed inset-0 z-[1050] bg-black/55 transition-opacity duration-300 md:hidden',
+    isOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
   ].join(' ')
 
   return (
@@ -187,7 +185,46 @@ function Navbar() {
         </Button>
       </div>
 
-      <div id="mobile-menu" ref={drawerRef} className={drawerClasses} aria-hidden={!isOpen}>
+      <div
+        className={overlayClasses}
+        onClick={closeMenu}
+        aria-hidden="true"
+      />
+
+      <div
+        id="mobile-menu"
+        ref={drawerRef}
+        className={sidebarClasses}
+        aria-hidden={!isOpen}
+        aria-label="Mobile navigation"
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <Link
+            to="/"
+            className="inline-flex min-h-11 items-center gap-px font-mono text-[1.05rem] font-bold tracking-wide"
+            aria-label="John Marc Comeros — home"
+            onClick={closeMenu}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <span className="text-muted" aria-hidden="true">
+              &lt;
+            </span>
+            <span className="text-primary">JMC</span>
+            <span className="text-muted" aria-hidden="true">
+              /&gt;
+            </span>
+          </Link>
+          <Button
+            variant="icon"
+            className="md:hidden"
+            aria-label="Close navigation menu"
+            onClick={closeMenu}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <X size={20} aria-hidden="true" />
+          </Button>
+        </div>
+
         <nav aria-label="Mobile navigation">
           <ul className="flex flex-col gap-1">
             {navLinks.map((link) => (
@@ -207,7 +244,7 @@ function Navbar() {
           <Button
             to="/contact"
             variant="primary"
-            className="mt-4 w-full"
+            className="mt-6 w-full"
             onClick={closeMenu}
             tabIndex={isOpen ? 0 : -1}
           >
@@ -215,8 +252,6 @@ function Navbar() {
           </Button>
         </nav>
       </div>
-
-      <div className={overlayClasses} onClick={closeMenu} aria-hidden="true" />
     </header>
   )
 }
