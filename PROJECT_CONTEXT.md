@@ -715,8 +715,10 @@ matches what actually renders),
 `--container-page: 1200px` → `max-w-page`,
 `--animate-bounce-soft` + `@keyframes bounce-soft`.
 
-Theme: **light** — single consistent visual theme (light minimalist developer
-dashboard), no toggle. Redesigned from dark to light in the dashboard redesign.
+Theme: **light by default with optional dark mode** — toggle in sidebar (desktop)
+and mobile top bar; preference persisted in `localStorage` under `theme`;
+`.dark` class on `<html>` drives the dark palette. Early inline script prevents
+flash of the wrong theme.
 
 ### Typography hierarchy (utility recipes, applied consistently)
 

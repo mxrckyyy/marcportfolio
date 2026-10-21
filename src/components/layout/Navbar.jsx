@@ -4,6 +4,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Code2, FileText, FolderKanban, Home, Mail, Menu, User, X } from 'lucide-react'
 import Button from '../ui/Button'
 import SocialLinks from '../ui/SocialLinks'
+import ThemeToggle from '../ui/ThemeToggle'
 import { containerClasses } from '../../utils/container'
 
 const drawerFocusableSelector = 'a[href], button:not([disabled])'
@@ -255,6 +256,10 @@ function Navbar() {
         </nav>
 
         <div className="mt-6 border-t border-border pt-4">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-xs text-muted">Theme</p>
+            <ThemeToggle />
+          </div>
           <p className="mb-2 text-xs text-muted">Available for internships</p>
           <SocialLinks variant="compact" />
         </div>
@@ -289,6 +294,8 @@ function Navbar() {
               /&gt;
             </span>
           </Link>
+
+          <ThemeToggle className="ml-auto" />
         </div>
       </header>
 

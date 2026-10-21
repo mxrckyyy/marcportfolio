@@ -1,5 +1,6 @@
 import { MotionConfig } from 'framer-motion'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/layout/Layout'
 import Home from './pages/Home'
 import About from './pages/About'
@@ -12,8 +13,9 @@ import NotFound from './pages/NotFound'
 
 function App() {
   return (
-    <MotionConfig reducedMotion="user">
-      <BrowserRouter>
+    <ThemeProvider>
+      <MotionConfig reducedMotion="user">
+        <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Home />} />
@@ -28,6 +30,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </MotionConfig>
+  </ThemeProvider>
   )
 }
 

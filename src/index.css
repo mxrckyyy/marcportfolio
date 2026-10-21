@@ -52,6 +52,33 @@
 }
 
 /* =========================================================
+   DARK THEME — overrides when .dark is on <html>
+   ========================================================= */
+.dark {
+  --color-background: #101713;
+  --color-foreground: #F1F5F2;
+  --color-surface: #18221B;
+  --color-surface-elevated: #202C23;
+  --color-primary: #4ADE80;
+  --color-primary-hover: #22C55E;
+  --color-primary-foreground: #101713;
+  --color-primary-soft: rgba(74, 222, 128, 0.12);
+  --color-muted: #AAB8AE;
+  --color-foreground-strong: #DCE5DF;
+  --color-border: #2D3B31;
+  --color-border-strong: #4A5A4F;
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --color-danger: #F87171;
+}
+
+/* Smooth theme transition */
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* =========================================================
    GLOBAL BASE — browser-level + accessibility behavior
    ========================================================= */
 @layer base {

@@ -8,7 +8,15 @@
       name="description"
       content="Portfolio of John Marc Comeros — second-year BSIT student and aspiring web developer building responsive web interfaces with React, JavaScript, and Tailwind CSS."
     />
-    <meta name="theme-color" content="#0B0F17" />
+    <meta name="theme-color" content="#F7F9F7" />
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark') document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="manifest" href="/site.webmanifest" />
 <script type="application/ld+json">
