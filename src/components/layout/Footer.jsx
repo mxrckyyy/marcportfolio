@@ -1,4 +1,3 @@
-import SocialLinks from '../ui/SocialLinks'
 import { containerClasses } from '../../utils/container'
 
 function Footer() {
@@ -12,9 +11,6 @@ function Footer() {
         <p className="text-sm text-muted">
           &copy; {year} John Marc Comeros. Built with React &amp; Vite.
         </p>
-        <div className="flex items-center gap-3">
-          <SocialLinks variant="compact" />
-        </div>
       </div>
     </footer>
   )

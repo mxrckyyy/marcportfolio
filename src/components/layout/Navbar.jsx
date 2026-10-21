@@ -211,6 +211,12 @@ function Navbar() {
           >
             Get in Touch
           </Button>
+
+          {isOpen && (
+            <div className="mt-6 border-t border-border pt-4">
+              <SocialLinks variant="compact" />
+            </div>
+          )}
         </nav>
       </div>
     </>

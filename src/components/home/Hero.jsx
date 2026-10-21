@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, Briefcase, GraduationCap, Layers, User } from 'lucide-react'
 import Button from '../ui/Button'
-import SocialLinks from '../ui/SocialLinks'
 import { staggerContainer, staggerItem } from '../../utils/animations'
 import { containerClasses } from '../../utils/container'
 
@@ -14,9 +13,9 @@ const summaryCards = [
 
 function Hero() {
   return (
-    <section className="py-10 sm:py-14 md:py-[clamp(3.5rem,8vh,5rem)]">
+    <section className="py-12 sm:py-16 md:py-[clamp(4rem,9vh,6rem)]">
       <div className={containerClasses}>
-        <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] md:gap-[clamp(2rem,5vw,4rem)]">
+        <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] md:gap-[clamp(2.5rem,5vw,4rem)]">
           <motion.div
             className="min-w-0"
             initial="hidden"
@@ -27,29 +26,32 @@ function Hero() {
               className="font-mono text-xs font-medium uppercase tracking-[0.08em] text-primary before:text-muted before:content-['//_']"
               variants={staggerItem}
             >
-              Hi, I&apos;m John Marc Comeros.
-            </motion.p>
-
-            <motion.p className="mt-1 text-sm text-muted" variants={staggerItem}>
-              Also known as Marc.
+              Hi, I&apos;m Marc.
             </motion.p>
 
             <motion.h1
-              className="mt-3 text-balance text-[clamp(1.75rem,5vw,3rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-foreground"
+              className="mt-3 text-balance text-[clamp(2rem,5vw,3.25rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-foreground"
               variants={staggerItem}
             >
-              Aspiring Web Developer
+              John Marc Comeros
             </motion.h1>
 
             <motion.p
-              className="mt-3 font-mono text-[clamp(1.05rem,3.2vw,1.5rem)] font-semibold tracking-[-0.01em] text-primary"
+              className="mt-2 text-sm text-muted"
+              variants={staggerItem}
+            >
+              Also known as Marc
+            </motion.p>
+
+            <motion.p
+              className="mt-3 font-mono text-[clamp(1rem,2.8vw,1.35rem)] font-semibold tracking-[-0.01em] text-primary"
               variants={staggerItem}
             >
               2nd-Year BSIT Student · Aspiring Web Developer
             </motion.p>
 
             <motion.p
-              className="mt-5 max-w-[560px] text-[1.05rem] leading-relaxed text-muted"
+              className="mt-6 max-w-[52ch] text-[1.05rem] leading-relaxed text-muted"
               variants={staggerItem}
             >
               I&apos;m learning to build responsive, accessible, and user-focused
@@ -58,7 +60,7 @@ function Hero() {
             </motion.p>
 
             <motion.div
-              className="mt-7 flex flex-col gap-3 min-[430px]:flex-row min-[430px]:flex-wrap sm:gap-4"
+              className="mt-8 flex flex-col gap-3 min-[430px]:flex-row min-[430px]:flex-wrap sm:gap-4"
               variants={staggerItem}
             >
               <Button to="/projects" variant="primary" size="lg">
@@ -68,19 +70,15 @@ function Hero() {
                 Contact Me
               </Button>
             </motion.div>
-
-            <motion.div className="mt-7" variants={staggerItem}>
-              <SocialLinks />
-            </motion.div>
           </motion.div>
 
           <motion.div
             className="flex justify-center md:justify-end"
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
+            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
           >
-            <figure className="w-[min(100%,clamp(220px,60vw,300px))] overflow-hidden rounded-lg border border-border bg-surface p-2 shadow-sm md:w-[clamp(240px,24vw,340px)]">
+            <figure className="w-[min(100%,clamp(200px,55vw,280px))] overflow-hidden rounded-lg border border-border bg-surface p-2 md:w-[clamp(220px,22vw,300px)]">
               <img
                 src="/images/profile.jpg"
                 alt="John Marc Comeros — aspiring web developer"
@@ -90,9 +88,9 @@ function Hero() {
                 loading="eager"
                 decoding="async"
               />
-              <figcaption className="mt-2 flex items-start gap-2 border-t border-border-subtle px-1 pb-1 pt-2.5 text-xs leading-snug text-muted">
+              <figcaption className="mt-2 flex items-center gap-2 border-t border-border-subtle px-1 pb-1 pt-2 text-xs leading-snug text-muted">
                 <span
-                  className="mt-1 size-2 shrink-0 rounded-full bg-success"
+                  className="size-1.5 shrink-0 rounded-full bg-success"
                   aria-hidden="true"
                 />
                 Available for internships &amp; junior roles
@@ -102,7 +100,7 @@ function Hero() {
         </div>
 
         <motion.div
-          className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
@@ -110,11 +108,11 @@ function Hero() {
           {summaryCards.map(({ icon: Icon, label, value }) => (
             <motion.div
               key={label}
-              className="rounded-lg border border-border bg-surface p-4 shadow-sm"
+              className="rounded-lg border border-border bg-surface p-4"
               variants={staggerItem}
             >
-              <div className="flex items-center gap-2 text-primary">
-                <Icon size={16} aria-hidden="true" />
+              <div className="flex items-center gap-2">
+                <Icon size={15} className="text-primary" aria-hidden="true" />
                 <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted">
                   {label}
                 </p>
