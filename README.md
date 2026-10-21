@@ -16,7 +16,7 @@ A modern, responsive, job-focused web developer portfolio built with **React**, 
 ## 📁 Key Features
 
 - **Responsive Layout**: Designed mobile-first, supporting viewports down to 320px.
-- **Dark-First Design Tokens**: Custom CSS variable design system with subtle glow states and glassmorphism navbar.
+- **Light Design Tokens**: Custom CSS variable design system with a light, minimalist palette and green accent.
 - **Interactive Projects Showcase**: Categorized cards featuring open-source GitHub projects with feature breakdowns and code links.
 - **Resume Access**: Instant preview and download support for `John-Marc-Comeros-Resume.pdf`.
 - **Contact Integration**: Accessible contact cards and direct messaging form with auto-fallback handling.

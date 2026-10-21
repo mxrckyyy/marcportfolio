@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import Button from '../ui/Button'
 import { projects } from '../../data/projects'
+
+const otherProjects = projects.filter((project) => project.id !== 'fastrev')
 import { staggerContainer, staggerItem, viewportOnce } from '../../utils/animations'
 import { containerClasses } from '../../utils/container'
 
@@ -33,13 +35,13 @@ function SelectedWork() {
         </motion.div>
 
         <motion.ul
-          className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3"
+          className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5"
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
           variants={staggerContainer}
         >
-          {projects.map((project) => (
+          {otherProjects.map((project) => (
             <motion.li key={project.id} className="min-w-0" variants={staggerItem}>
               <Link
                 to="/projects"

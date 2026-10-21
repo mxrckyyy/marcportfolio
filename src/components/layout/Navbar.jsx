@@ -1,32 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Code2, FileText, FolderKanban, Home, Mail, Menu, User, X } from 'lucide-react'
 import Button from '../ui/Button'
+import SocialLinks from '../ui/SocialLinks'
 import { containerClasses } from '../../utils/container'
 
 const drawerFocusableSelector = 'a[href], button:not([disabled])'
 
 const navLinks = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/about', label: 'About' },
-  { to: '/skills', label: 'Skills' },
-  { to: '/projects', label: 'Projects' },
-  { to: '/resume', label: 'Resume' },
-  { to: '/contact', label: 'Contact' },
+  { to: '/', label: 'Home', end: true, icon: Home },
+  { to: '/about', label: 'About', icon: User },
+  { to: '/skills', label: 'Skills', icon: Code2 },
+  { to: '/projects', label: 'Projects', icon: FolderKanban },
+  { to: '/resume', label: 'Resume', icon: FileText },
+  { to: '/contact', label: 'Contact', icon: Mail },
 ]
 
 const desktopLinkClasses = ({ isActive }) =>
   [
-    'relative inline-flex min-h-11 items-center rounded-sm px-3 text-sm transition-colors duration-200 after:absolute after:inset-x-3 after:bottom-1 after:h-0.5 after:origin-center after:scale-x-0 after:bg-primary after:transition-transform after:duration-200 hover:after:scale-x-100',
+    'group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors duration-200',
     isActive
-      ? 'font-semibold text-primary after:scale-x-100'
-      : 'font-medium text-muted hover:bg-border-subtle hover:text-foreground',
+      ? 'bg-primary-soft font-semibold text-primary'
+      : 'font-medium text-muted hover:bg-surface-elevated hover:text-foreground',
   ].join(' ')
 
 const drawerLinkClasses = ({ isActive }) =>
   [
-    'block rounded-sm px-3 py-2.5 text-base transition-colors duration-200',
+    'block rounded-md px-3 py-2.5 text-base transition-colors duration-200',
     isActive
       ? 'bg-primary-soft font-semibold text-primary'
       : 'font-medium text-foreground hover:bg-surface-elevated hover:text-primary',
@@ -125,18 +126,20 @@ function Navbar() {
 
   const closeMenu = () => setIsOpen(false)
 
-  const headerClasses = [
-    'sticky top-0 z-[1000] w-full border-b border-transparent bg-background/55 transition-colors duration-200',
-    isScrolled || isOpen ? 'border-border-subtle bg-background/75 backdrop-blur-md' : '',
+  const desktopSidebarClasses = 'hidden md:flex md:flex-col md:fixed md:left-0 md:top-0 md:h-full md:w-[260px] md:border-r md:border-border md:bg-surface md:px-6 md:py-6 md:z-40'
+
+  const mobileHeaderClasses = [
+    'md:hidden sticky top-0 z-[1000] w-full border-b border-border bg-surface/80 backdrop-blur-md transition-colors duration-200',
+    isScrolled ? 'shadow-sm' : '',
   ].join(' ')
 
   const sidebarClasses = [
-    'fixed left-0 top-0 z-[1060] h-full w-[min(85vw,20rem)] overflow-y-auto border-r border-border-subtle bg-background px-6 py-6 shadow-2xl transition-transform duration-300 md:hidden',
+    'fixed left-0 top-0 z-[1060] h-full w-[min(85vw,20rem)] overflow-y-auto border-r border-border-subtle bg-surface px-6 py-6 shadow-2xl transition-transform duration-300 md:hidden',
     isOpen ? 'translate-x-0' : '-translate-x-full',
   ].join(' ')
 
   const overlayClasses = [
-    'fixed inset-0 z-[1050] bg-black/55 transition-opacity duration-300 md:hidden',
+    'fixed inset-0 z-[1050] bg-black/30 transition-opacity duration-300 md:hidden',
     isOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
   ].join(' ')
 
@@ -214,7 +217,51 @@ function Navbar() {
 
   return (
     <>
-      <header className={headerClasses}>
+      {/* Desktop persistent sidebar */}
+      <aside className={desktopSidebarClasses}>
+        <Link
+          to="/"
+          className="mb-6 inline-flex min-h-11 items-center gap-px font-mono text-[1.05rem] font-bold tracking-wide"
+          aria-label="John Marc Comeros — home"
+        >
+          <span className="text-muted" aria-hidden="true">
+            &lt;
+          </span>
+          <span className="text-primary">JMC</span>
+          <span className="text-muted" aria-hidden="true">
+            /&gt;
+          </span>
+        </Link>
+
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-foreground">John Marc Comeros</p>
+          <p className="text-xs text-muted">2nd-Year BSIT Student · Aspiring Web Developer</p>
+        </div>
+
+        <nav aria-label="Main navigation" className="flex-1">
+          <ul className="flex flex-col gap-1">
+            {navLinks.map((link) => {
+              const Icon = link.icon
+              return (
+                <li key={link.to}>
+                  <NavLink to={link.to} end={link.end} className={desktopLinkClasses}>
+                    <Icon size={16} aria-hidden="true" />
+                    {link.label}
+                  </NavLink>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
+
+        <div className="mt-6 border-t border-border pt-4">
+          <p className="mb-2 text-xs text-muted">Available for internships</p>
+          <SocialLinks variant="compact" />
+        </div>
+      </aside>
+
+      {/* Mobile top bar */}
+      <header className={mobileHeaderClasses}>
         <div className={`${containerClasses} flex h-16 items-center gap-4`}>
           <Button
             ref={toggleRef}
@@ -242,23 +289,9 @@ function Navbar() {
               /&gt;
             </span>
           </Link>
-
-          <nav className="hidden items-center gap-3 md:ml-auto md:flex" aria-label="Main navigation">
-            <ul className="flex items-center gap-1">
-              {navLinks.map((link) => (
-                <li key={link.to}>
-                  <NavLink to={link.to} end={link.end} className={desktopLinkClasses}>
-                    {link.label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-            <Button to="/contact" variant="primary" size="sm">
-              Get in Touch
-            </Button>
-          </nav>
         </div>
       </header>
+
       {typeof document !== 'undefined' ? createPortal(drawer, document.body) : null}
     </>
   )

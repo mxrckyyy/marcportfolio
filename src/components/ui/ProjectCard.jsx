@@ -125,6 +125,9 @@ function ProjectCard({ project }) {
               <Github size={16} aria-hidden="true" /> View Code
             </Button>
           )}
+          <Button to={`/projects/${project.id}`} variant="ghost" size="sm">
+            Case study
+          </Button>
         </div>
       </div>
     </motion.article>

@@ -85,7 +85,7 @@ function Resume() {
             John Marc Comeros
           </p>
           <p className="mt-1 font-mono text-sm text-primary">
-            Junior Frontend Developer
+            2nd-Year BSIT Student · Aspiring Web Developer
           </p>
           <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
             {contactLinks.map((link) => (

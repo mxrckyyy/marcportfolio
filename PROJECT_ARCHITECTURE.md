@@ -81,7 +81,7 @@ marcportfolio/
 │   ├── components/
 │   │   ├── layout/
 │   │   │   ├── Layout.jsx     # Shared shell: ScrollToTop, skip link, Navbar, <Outlet/>, Footer, BackToTop
-│   │   │   ├── Navbar.jsx     # NavLink desktop list + mobile drawer (focus-managed, Phase 9)
+│   │   │   ├── Navbar.jsx     # Desktop persistent left sidebar + mobile top bar + mobile drawer (portaled)
 │   │   │   ├── Footer.jsx     # Copyright + compact social links (Phase 9: back-to-top button removed)
 │   │   │   └── Page.jsx       # Page shell: vertical padding + container
 │   │   ├── home/

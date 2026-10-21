@@ -35,7 +35,7 @@ function Layout() {
         id="main-content"
         tabIndex={-1}
         key={pathname}
-        className="focus:outline-none"
+        className="focus:outline-none md:ml-[260px]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
@@ -43,7 +43,9 @@ function Layout() {
         <Outlet />
       </motion.main>
 
-      <Footer />
+      <div className="md:ml-[260px]">
+        <Footer />
+      </div>
       <BackToTop />
     </>
   )
