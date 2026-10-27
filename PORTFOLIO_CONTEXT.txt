@@ -1,0 +1,112 @@
+PROJECT BLUEPRINT & CONTEXT FILE
+Portfolio Owner: John Marc Comeros
+Target Audience: Recruiters, Hiring Managers, Web Developers
+====================================================================
+
+1. PERSONAL INFORMATION
+--------------------------------------------------------------------
+- Name: John Marc Comeros
+- Age: 19
+- Location: Cebu, Philippines
+- Education: 2nd-year BSIT Student (Asian College of Technology)
+- Developer Level: Aspiring / Starting Junior Web Developer
+- Email: johnmarccomeros16@gmail.com
+- Phone: 09690487218
+- GitHub: https://github.com/mxrckyyy
+- Work Experience: None (No professional/employment experience yet)
+
+2. TECHNICAL SKILLS & TOOLS
+--------------------------------------------------------------------
+- Frontend: HTML, CSS, JavaScript (basic), React
+- Programming Languages: C#
+- Databases & Backend: MySQL, Supabase
+- Developer Tools: Git, GitHub
+- Design & Vector Tools: Figma, Inkscape
+
+3. PORTFOLIO GOALS & RULES
+--------------------------------------------------------------------
+- GOAL: Present a clean, modern, job-focused developer portfolio to apply for entry-level positions, internships, or freelance work.
+- RULE 1: STRICT TRUTHFULNESS. Do NOT invent work experience, client projects, fake metrics, certifications, fake skill percentages, or "Senior/Full-Stack" titles.
+- RULE 2: PROJECT-CENTRIC. Since there is no employment history, the portfolio must highlight actual open-source/academic GitHub projects.
+- RULE 3: CODE ARCHITECTURE. Reusable React components, clean JSX, modular data files (data/projects.js, data/skills.js), clean CSS modules or global design tokens. No bloated single-file codebases.
+- RULE 4: DESIGN SYSTEM. Modern, dark-first, minimal, developer-focused, clean typography, responsive without horizontal scroll on screens down to 320px. Avoid heavy gradients, neon overload, or unnecessary 3D elements.
+
+4. 10-PHASE BUILD PLAN
+--------------------------------------------------------------------
+- Phase 1: Fresh React + Vite Project Setup & File Structure Creation
+- Phase 2: Core Layout, Navigation (Navbar/Footer), & Global Design System
+- Phase 3: Hero Section & Personal Branding
+- Phase 4: About Section & Skills Showcase
+- Phase 5: GitHub Projects Showcase & Data Integration
+- Phase 6: Resume Section, Contact Form & Social Links
+- Phase 7: Visual Polish, UI Feedback & Micro-Animations (Framer Motion)
+- Phase 8: Mobile-First Optimization & Responsive QA
+- Phase 9: SEO, Accessibility (a11y) & Performance Tuning
+- Phase 10: Production Build Verification, GitHub Push & Vercel Deployment
+
+5. CURRENT PROJECT STRUCTURE TO BUILD
+--------------------------------------------------------------------
+MxrckyyyWebPortfolio/
+├── public/
+│   ├── images/
+│   ├── icons/
+│   ├── favicon.svg
+│   └── resume.pdf
+├── src/
+│   ├── assets/
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Navbar.jsx
+│   │   │   └── Footer.jsx
+│   │   ├── sections/
+│   │   │   ├── Hero.jsx
+│   │   │   ├── About.jsx
+│   │   │   ├── Skills.jsx
+│   │   │   ├── Projects.jsx
+│   │   │   ├── Resume.jsx
+│   │   │   └── Contact.jsx
+│   │   └── ui/
+│   │       ├── Button.jsx
+│   │       ├── SectionHeading.jsx
+│   │       ├── ProjectCard.jsx
+│   │       └── SocialLinks.jsx
+│   ├── data/
+│   │   ├── projects.js
+│   │   ├── skills.js
+│   │   └── socialLinks.js
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+├── PORTFOLIO_CONTEXT.txt
+├── index.html
+├── package.json
+├── vite.config.js
+└── README.md
+
+6. FEATURED PROJECTS (src/data/projects.js)
+--------------------------------------------------------------------
+Project entries are rendered dynamically by src/components/sections/Projects.jsx
+into a responsive grid (1 column below 768px, 2 equal columns above) using
+src/components/ui/ProjectCard.jsx. All cards share identical dimensions,
+hover effects (border accent + lift), tech badges, and action buttons
+("Live Demo" / "View Code"). Both entries below are flagged featured: true.
+
+- Gasto Buster (id: gasto-buster) - Full-Stack Financial & Budget Tracker
+  Demo: https://gastobuster.vercel.app
+  GitHub: https://github.com/mxrckyyy/Gasto-Buster
+  Stack: React, JavaScript, Tailwind CSS, Vercel
+
+- Inventory Management System (id: inventory-system) - Full-Stack Web App
+  Demo: https://inventory-system-pi-self.vercel.app
+  GitHub: https://github.com/mxrckyyy/InventorySystem
+  Stack: React, Vite, Supabase, Tailwind CSS, SheetJS, Vercel
+  Highlights: RBAC (Admin/Viewer) via Supabase Auth, automated SKU
+  generation, responsive drawer menu + full-width adaptive data tables,
+  Philippine Peso (₱) stock valuation & low-stock alerts, client-side
+  Excel (.xlsx) report export
+
+PROJECT ENTRY SCHEMA (required keys for ProjectCard):
+  id, title, category, type, description, technologies[], features[],
+  demo, github, featured
+====================================================================
+

@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+/* =========================================================
+   DESIGN SYSTEM — Tailwind CSS v4 @theme tokens
+   Light, minimalist developer portfolio palette.
+   ========================================================= */
+@theme {
+  /* Colors */
+  --color-background: #F7F9F7;
+  --color-foreground: #17211B;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #F2F5F2;
+  --color-primary: #16834A;
+  --color-primary-hover: #11683A;
+  --color-primary-foreground: #FFFFFF;
+  --color-primary-soft: rgba(22, 131, 74, 0.10);
+  --color-muted: #66736A;
+  --color-foreground-strong: #2A3A30;
+  --color-border: #E4EAE5;
+  --color-border-strong: #C8D2CB;
+  --color-border-subtle: rgba(0, 0, 0, 0.06);
+  --color-success: #16834A;
+  --color-warning: #B45309;
+  --color-danger: #B91C1C;
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+    Consolas, "Liberation Mono", monospace;
+
+  /* Radii — moderate, consistent */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.75rem;
+
+  /* Layout */
+  --container-page: 1200px;
+
+  /* Motion */
+  --animate-bounce-soft: bounce-soft 1.8s ease-in-out infinite;
+
+  @keyframes bounce-soft {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+}
+
+/* =========================================================
+   DARK THEME — overrides when .dark is on <html>
+   ========================================================= */
+.dark {
+  --color-background: #101713;
+  --color-foreground: #F1F5F2;
+  --color-surface: #18221B;
+  --color-surface-elevated: #202C23;
+  --color-primary: #4ADE80;
+  --color-primary-hover: #22C55E;
+  --color-primary-foreground: #101713;
+  --color-primary-soft: rgba(74, 222, 128, 0.12);
+  --color-muted: #AAB8AE;
+  --color-foreground-strong: #DCE5DF;
+  --color-border: #2D3B31;
+  --color-border-strong: #4A5A4F;
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --color-danger: #F87171;
+}
+
+/* Smooth theme transition */
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* =========================================================
+   GLOBAL BASE — browser-level + accessibility behavior
+   ========================================================= */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-strong) transparent;
+  }
+
+  body {
+    min-height: 100vh;
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-soft);
+    color: var(--color-foreground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  main:focus {
+    outline: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-strong);
+    border: 2px solid var(--color-background);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-primary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* =========================================================
+   PRINT — scoped to the Resume page only.
+   ========================================================= */
+@media print {
+  body[data-print-resume] {
+    background: #fff;
+  }
+
+  body[data-print-resume]
+    :is(header, footer, nav, button, a[href="#main-content"]):not(main *) {
+    display: none;
+  }
+
+  .resume-print {
+    color: #1f2328;
+  }
+
+  .resume-print .text-foreground,
+  .resume-print .text-foreground-strong {
+    color: #1f2328;
+  }
+
+  .resume-print .text-muted,
+  .resume-print .before\:text-muted::before {
+    color: #4b5563;
+  }
+
+  .resume-print .text-primary {
+    color: #1d4ed8;
+  }
+
+  .resume-print .border-border-subtle {
+    border-color: #d1d5db;
+  }
+
+  .resume-print .border-primary {
+    border-color: #2563eb;
+  }
+
+  .resume-print .decoration-border-strong {
+    text-decoration-color: #9ca3af;
+  }
+
+  .resume-print .resume-sheet {
+    background: #fff;
+  }
+}
